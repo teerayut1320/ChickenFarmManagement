@@ -4,32 +4,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Glassmorphism Login Form | CodingNepal</title>
+  <title>ลงชื่อเข้าใช้งานระบบ</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="wrapper">
-    <form action="#">
-      <h2>Login</h2>
+    <form action="check_login.php" method="POST">
+      <h2>ลงชื่อเข้าใช้งานระบบ</h2>
         <div class="input-field">
-        <input type="text" required>
-        <label>Enter your email</label>
+        <input name="username" type="text" required>
+        <label>ชื้อผู้ใช้งาน</label>
       </div>
       <div class="input-field">
-        <input type="password" required>
-        <label>Enter your password</label>
-      </div>
-      <div class="forget">
-        <label for="remember">
-          <input type="checkbox" id="remember">
-          <p>Remember me</p>
+        <input name="password" type="password" required>
+        <label>รหัสผ่าน
         </label>
-        <a href="#">Forgot password?</a>
       </div>
-      <button type="submit">Log In</button>
-      <div class="register">
-        <p>Don't have an account? <a href="#">Register</a></p>
-      </div>
+
+      <button name="submit" type="submit">เข้าสู้ระบบ</button>
+      
     </form>
   </div>
 </body>
