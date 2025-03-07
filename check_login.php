@@ -1,6 +1,7 @@
 <?php
-    session_start();    
     require_once 'connect.php';
+    session_start();    
+    
 
     if (isset($_POST['submit'])) {
         $user = $_POST['username'];
@@ -9,7 +10,7 @@
         // echo "pass = ".$pass ;
     }
     try {
-       $select = $db->prepare("SELECT * FROM `user_login` WHERE `us_name` = '$user' AND `us_pass` = '$pass'");
+       $select = $db->query("SELECT * FROM `user_login` WHERE `us_name` = '$user' AND `us_pass` = '$pass'");
        $select->execute();
 
        while ($row = $select->fetch(PDO::FETCH_ASSOC)) {

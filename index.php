@@ -1,3 +1,7 @@
+<?php
+  require_once 'connect.php';
+  session_start();
+?>
 <!DOCTYPE html>
 <!-- Coding By CodingNepal - www.codingnepalweb.com -->
 <html>
