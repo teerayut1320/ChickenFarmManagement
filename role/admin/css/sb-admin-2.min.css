@@ -72,7 +72,7 @@ body {
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
-    color: #858796;
+    color: #cc6911;
     text-align: left;
     background-color: #fff
 }
@@ -10828,6 +10828,10 @@ a.text-dark:hover {
     color: #373840 !important
 }
 
+.text-chick1 {
+    color: #cc6911 !important
+}
+
 .text-body {
     color: #858796 !important
 }
@@ -11373,7 +11377,7 @@ a:focus {
 }
 
 .topbar {
-    height: 4.375rem
+    height: 3.5rem
 }
 
 .topbar #sidebarToggleTop {
