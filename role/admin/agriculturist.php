@@ -1,3 +1,8 @@
+<?php
+  require_once '../../connect.php';
+  session_start();  
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -26,134 +31,11 @@
 </head>
 
 <body id="page-top">
-
-    <!-- Page Wrapper -->
     <div id="wrapper">
-
-        <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-Chick1 sidebar sidebar-dark accordion" id="accordionSidebar">
-
-            <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-                <div class="sidebar-brand-icon">
-                    <i class="fas fa-user-shield"></i>
-                </div>
-                <div class="sidebar-brand-text mx-3">ผู้ดูแลนะบบ</div>
-            </a>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider my-0">
-
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item ">
-                <a class="nav-link" href="Home.php">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span style="font-size: 1rem;">หน้าหลัก</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="agriculturist.php">
-                    <i class="fas fa-users-cog"></i>
-                    <span style="font-size: 1rem;">ข้อมูลเกษตรกร</span></a>
-            </li>
-
-
-
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-                    aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span style="font-size: 1rem;">ออกรายงานภาพรวม</span>
-                </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="buttons.html">ช้อมูลไก่</a>
-                        <a class="collapse-item" href="cards.html">ข้อมูลการให้อาหารไก่</a>
-                        <a class="collapse-item" href="cards.html">ข้อมูลการขาย</a>
-                        <a class="collapse-item" href="cards.html">ข้อมูลรายรับ-รายจ่าย</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Nav Item - Utilities Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
-                    aria-expanded="true" aria-controls="collapseUtilities">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span style="font-size: 1rem;">ออกรายงานรายบุคคล</span>
-                </a>
-                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
-                    data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="buttons.html">ช้อมูลไก่</a>
-                        <a class="collapse-item" href="cards.html">ข้อมูลการให้อาหารไก่</a>
-                        <a class="collapse-item" href="cards.html">ข้อมูลการขาย</a>
-                        <a class="collapse-item" href="cards.html">ข้อมูลรายรับ-รายจ่าย</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <li class="nav-item ">
-                <a class="nav-link" data-toggle="modal" data-target="#logoutModal" href="logout.php">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span style="font-size: 1rem;">ออกจากระบบ</span>
-                </a>
-            </li>
-
-        </ul>
-        <!-- End of Sidebar -->
-
-        <!-- Content Wrapper -->
+        <?php include("../../sidebar/sb_admin.php");?> <!--  Sidebar -->
         <div id="content-wrapper" class="d-flex flex-column">
-
-            <!-- Main Content -->
             <div id="content">
-
-                <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-                    <!-- Topbar Navbar -->
-                    <ul class="navbar-nav ml-auto">
-                        <div class="topbar-divider d-none d-sm-block"></div>
-
-                        <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
-                            </a>
-                            <!-- <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Logout
-                                </a>
-                            </div> -->
-                        </li>
-
-                    </ul>
-
-                </nav>
-                <!-- End of Topbar -->
-
-                <!-- Begin Page Content -->
+            <?php include("../../topbar/tb_admin.php");?> <!-- Topbar -->
                 <div class="container-fluid">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
@@ -163,24 +45,45 @@
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Position</th>
-                                            <th>Office</th>
-                                            <th>Age</th>
-                                            <th>Start date</th>
-                                            <th>Salary</th>
+                                        <tr align="center">
+                                            <th>ชื่อเกษตรกร</th>
+                                            <th>ชื่อฟาร์ม</th>
+                                            <th>เบอร์โทรศัพท์</th>
+                                            <th>ชื่อผู้ใช้งาน</th>
+                                            <th>รหัสผ่าน</th>  
+                                            <th></th>  
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>Tiger Nixon</td>
-                                            <td>System Architect</td>
-                                            <td>Edinburgh</td>
-                                            <td>61</td>
-                                            <td>2011/04/25</td>
-                                            <td>$320,800</td>
+                                        <?php
+                                            $id = $_SESSION['id'];
+                                            // echo $id;
+                                            // $check_id = $db->prepare("SELECT  `agc_id` FROM `user_login` WHERE `us_id` = '$id'");
+                                            // $check_id->execute();
+                                            // $agc_id = $check_id->fetch(PDO::FETCH_ASSOC);
+                                            // extract($agc_id);
+
+                                            $check_agc = $db->prepare("SELECT * FROM `agriculturist`INNER JOIN `user_login` ON user_login.agc_id = agriculturist.agc_id");
+                                            $check_agc->execute();
+                                            $agc_datas = $check_agc->fetchAll();
+
+                                            if (!$agc_datas) {
+                                                echo "<p><td colspan='6' class='text-center'>ไม่พบข้อมูล</td></p>";
+                                            } else {
+                                                foreach($agc_datas as $agc_data)  {
+                                        ?>
+                                        <tr >
+                                            <td><?= $agc_data['agc_name'];?></td>
+                                            <td align="center"><?= $agc_data['agc_Fname'];?></td>
+                                            <td align="center"><?= $agc_data['agc_phone'];?></td>
+                                            <td align="center"><?= $agc_data['us_name'];?></td>
+                                            <td align="center"><?= $agc_data['us_pass'];?></td>
+                                            <td align="center"><a href="edit_agriculturist.php?edit_id=<?= $agc_data['agc_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลเกษตรกร</a></td>
                                         </tr>
+                                        <?php
+                                                }
+                                            }
+                                        ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -194,15 +97,7 @@
             </div>
             <!-- End of Main Content -->
 
-            <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your Website 2020</span>
-                    </div>
-                </div>
-            </footer>
-            <!-- End of Footer -->
+            <?php include("../../footer/footer.php");?> <!-- footer -->
 
         </div>
         <!-- End of Content Wrapper -->
@@ -214,26 +109,6 @@
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
-
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Logout</a>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>

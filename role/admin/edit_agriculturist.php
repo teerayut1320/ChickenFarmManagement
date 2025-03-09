@@ -1,3 +1,22 @@
+<?php
+  require_once '../../connect.php';
+  session_start();  
+
+    if (isset($_REQUEST['edit_id'])) {
+        $id = $_REQUEST['edit_id'];
+        // echo "id = ".$id;
+        $check_id = $db->prepare("SELECT * FROM `agriculturist`
+                                 INNER JOIN `user_login` 
+                                 ON user_login.agc_id = agriculturist.agc_id  WHERE agriculturist.agc_id  = '$id'");
+        $check_id->execute();
+        $agc_id = $check_id->fetch(PDO::FETCH_ASSOC);
+        extract($agc_id);
+        // echo "agc_id = ".$agc_id;
+    }
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -26,13 +45,9 @@
 </head>
 
 <body id="page-top">
-
-    <!-- Page Wrapper -->
     <div id="wrapper">
-    <?php include("../../sidebar/sb_admin.php");?> <!--  Sidebar -->
-        <!-- Content Wrapper -->
+    <?php include("../../sidebar/sb_admin.php");?> <!--  Sidebar -->   
         <div id="content-wrapper" class="d-flex flex-column">
-            <!-- Main Content -->
             <div id="content">
             <?php include("../../topbar/tb_admin.php");?> <!-- Topbar -->
 
@@ -40,26 +55,35 @@
                 <div class="container-fluid">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h3 class="m-0 font-weight-bold text-chick1 text-center">เพิ่มข้อมูลเกษตรกร</h3>
+                            <h3 class="m-0 font-weight-bold text-chick1 text-center">แก้ไขข้อมูลเกษตรกร</h3>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_agc.php" method="post">
+                                        <form class="user" action="checkedit_agc.php" method="post">
+                                            <!-- <div class="row">
+                                                <div class="col-md-4 mb-2">
+                                                    <label for="" style="font-size: 1.125rem;">รหัส</label>
+                                                    <input type="text" class="form-control" name="agc_id" style="border-radius: 3rem;" value="<?= $agc_id?>" required >
+                                                </div>
+                                            </div> -->
                                             <div class="row mb-2">
-                                                <div class="col-md-2 mb-2"></div>
+                                                <div class="col-md-3 mb-2">
+                                                    <label for="" style="font-size: 1.125rem;">รหัสเกษตรกร</label>
+                                                    <input type="text" class="form-control" name="agc_id" style="border-radius: 3rem;" value="<?= $agc_id?>" required readonly>
+                                                </div>
                                                 <div class="col-md-3 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่อ-สกุล</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" value="<?= $agc_name?>" required >
                                                 </div>
-                                                <div class="col-md-2 mb-2">
+                                                <div class="col-md-3 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">เบอร์โทรศัพท์</label>
-                                                    <input type="text" class="form-control" name="phone" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="phone" style="border-radius: 3rem;" value="<?= $agc_phone?>" required >
                                                 </div>
                                                 <div class="col-md-3 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่อฟาร์ม</label>
-                                                    <input type="text" class="form-control" name="fname" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="fname" style="border-radius: 3rem;" value="<?= $agc_Fname?>"required >
                                                 </div>
                                             </div>
 
@@ -67,16 +91,17 @@
                                                 <div class="col-md-4 mb-3"></div>
                                                 <div class="col-md-2 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">ชื่อผู้ใช้งานระบบ</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" value="<?= $us_name?>" required >
                                                 </div>
                                                 <div class="col-md-2 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">รหัสผ่าน</label>
-                                                    <input type="text" class="form-control"  name="password" style="border-radius: 3rem;" required>
+                                                    <input type="text" class="form-control"  name="password" style="border-radius: 3rem;"  value="<?= $us_pass?>" required>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-5"></div>
                                                 <div class="col-md-3">
+                                                    <!-- <button type="button" class="btn btn-danger" style="border-radius: 3rem; font-size: 1rem;">ยกเลิก</button> -->
                                                     <a href="agriculturist.php" class="btn btn-danger" style="border-radius: 3rem; font-size: 1rem;">ยกเลิก</a>
                                                     <button type="submit" class="btn btn-chick1" name="submit" style="border-radius: 3rem; font-size: 1rem;">บันทึกข้อมูล</button>
                                                 </div>
@@ -95,6 +120,7 @@
             </div>
             <!-- End of Main Content -->
             <?php include("../../footer/footer.php");?> <!-- footer -->
+
         </div>
         <!-- End of Content Wrapper -->
 
@@ -105,6 +131,7 @@
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
+
 
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>

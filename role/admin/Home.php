@@ -1,3 +1,7 @@
+<?php
+  require_once '../../connect.php';
+  session_start();  
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,97 +21,17 @@
         href="https://fonts.googleapis.com/css?family=Kanit:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
 
-    <!-- Custom styles for this template-->
+    <!-- Custom styles for this template -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
 
 </head>
 
 <body id="page-top">
     <div id="wrapper">
-        <ul class="navbar-nav bg-gradient-Chick1 sidebar sidebar-dark accordion" id="accordionSidebar">
-
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
-                <div class="sidebar-brand-icon">
-                    <i class="fas fa-user-shield"></i>
-                </div>
-                <div class="sidebar-brand-text mx-3">ผู้ดูแลนะบบ</div>
-            </a>
-            <hr class="sidebar-divider my-0">
-            <li class="nav-item ">
-                <a class="nav-link" href="Home.php">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span style="font-size: 1rem;">หน้าหลัก</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="agriculturist.php">
-                    <i class="fas fa-users-cog"></i>
-                    <span style="font-size: 1rem;">ข้อมูลเกษตรกร</span></a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-                    aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span style="font-size: 1rem;">ออกรายงานภาพรวม</span>
-                </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="buttons.php">ช้อมูลไก่</a>
-                        <a class="collapse-item" href="cards.php">ข้อมูลการให้อาหารไก่</a>
-                        <a class="collapse-item" href="cards.php">ข้อมูลการขาย</a>
-                        <a class="collapse-item" href="cards.php">ข้อมูลรายรับ-รายจ่าย</a>
-                    </div>
-                </div>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
-                    aria-expanded="true" aria-controls="collapseUtilities">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span style="font-size: 1rem;">ออกรายงานรายบุคคล</span>
-                </a>
-                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
-                    data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="buttons.php">ช้อมูลไก่</a>
-                        <a class="collapse-item" href="cards.php">ข้อมูลการให้อาหารไก่</a>
-                        <a class="collapse-item" href="cards.php">ข้อมูลการขาย</a>
-                        <a class="collapse-item" href="cards.php">ข้อมูลรายรับ-รายจ่าย</a>
-                    </div>
-                </div>
-            </li>
-
-            <hr class="sidebar-divider d-none d-md-block">
-            <li class="nav-item ">
-                <a class="nav-link" data-toggle="modal" data-target="#logoutModal" href="logout.php">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span style="font-size: 1rem;">ออกจากระบบ</span>
-                </a>
-            </li>
-        </ul>
-        <!-- End of Sidebar -->
-
-        <!-- Content Wrapper -->
+        <?php include("../../sidebar/sb_admin.php");?> <!--  Sidebar -->
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
-
-                <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-3 static-top shadow">
-                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                        <i class="fa fa-bars"></i>
-                    </button>
-                    <ul class="navbar-nav ml-auto">
-                        <div class="topbar-divider d-none d-sm-block"></div>
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-
+                <?php include("../../topbar/tb_admin.php");?> <!-- Topbar -->
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-xl-3 col-md-6 mb-3">
@@ -171,14 +95,6 @@
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                                         </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                            aria-labelledby="dropdownMenuLink">
-                                            <div class="dropdown-header">Dropdown Header:</div>
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Something else here</a>
-                                        </div>
                                     </div>
                                 </div>
                                 <!-- Card Body -->
@@ -235,18 +151,7 @@
                         </div>
                     <!-- </div> -->
                 </div>
-                <!-- End of Main Content -->
-
-                <!-- Footer -->
-                <footer class="sticky-footer bg-white">
-                    <div class="container my-auto">
-                        <div class="copyright text-center my-auto">
-                            <span>Copyright &copy; ChickenFarmManagement</span>
-                        </div>
-                    </div>
-                </footer>
-                <!-- End of Footer -->
-
+                <?php include("../../footer/footer.php");?> <!-- footer -->
             </div>
             <!-- End of Content Wrapper -->
 
@@ -258,25 +163,7 @@
             <i class="fas fa-angle-up"></i>
         </a>
 
-        <!-- Logout Modal-->
-        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">ออกจากระบบ</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">คุณแน่ใจที่จะออกจากระบบใช่ไหม</div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">ยกเลิก</button>
-                        <a class="btn btn-danger" href="logout.php">ออกจากระบบ</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
 
         <!-- Bootstrap core JavaScript-->
         <script src="vendor/jquery/jquery.min.js"></script>
