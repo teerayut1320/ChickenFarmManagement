@@ -14,7 +14,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>รายงานข้อมูลการขายไก่รายบุคคล</title>
+    <title>รายงานข้อมูลรายรับ-รายจ่ายรายบุคคล</title>
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -54,12 +54,12 @@
                 <div class="container-fluid">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h3 class="m-0 font-weight-bold text-chick1 text-center">รายงานข้อมูลการขายไก่รายบุคคล</h3>
+                            <h3 class="m-0 font-weight-bold text-chick1 text-center">รายงานข้อมูลรายรับ-รายจ่ายรายบุคคล</h3>
                         </div>
                         <div class="card-body">
                             <form action="" method="post">
                                 <div class="row mb-2">
-                                    <div class="col-md-3"></div>
+                                    <div class="col-md-2"></div>
                                     <label for="inputState" class="form-label mt-2">ตั้งแต่วันที่</label>
                                     <div class="col-md-2">
                                         <input type="date" style="border-radius: 30px;" id="start_date"
@@ -69,6 +69,23 @@
                                     <div class="col-md-2">
                                         <input type="date" style="border-radius: 30px;" id="end_date" name="end_date"
                                             class="form-control" required>
+                                    </div>
+                                    <label for="inputState" class="form-label mt-2">เกษตรกรผู้เลี้ยงไก่</label>
+                                    <div class="col-md-2">
+                                        <select class="form-control" aria-label="Default select example" id="agc_name" name="agc_name" style="border-radius: 30px;">
+                                            <option selected disabled>กรุณาเลือกเกษตรกรผู้เลี้ยงไก่....</option>
+                                            <?php 
+                                                $stmt = $db->query("SELECT `agc_id`, `agc_name`  FROM `agriculturist`");
+                                                $stmt->execute();
+                                                $agcs = $stmt->fetchAll();
+                                                
+                                                foreach($agcs as $agc){
+                                            ?>
+                                            <option value="<?= $agc['agc_name']?>"><?= $agc['agc_name']?></option>
+                                            <?php
+                                                }
+                                            ?>
+                                        </select>
                                     </div>
                                     <div class="col-md-2">
                                         <button class="btn btn-primary" style="border-radius: 30px;" type="submit"
@@ -111,24 +128,14 @@
                                     <div class="card shadow mb-4">
                                         <div class="card-header py-3">
                                             <h6 class="m-0 font-weight-bold text-chick1">
-                                                สรุปยอดการขายไก่ในแต่ละเดือน</h6>
+                                                สรุปยอดรายรับ-รายจ่ายในแต่ละเดือน</h6>
                                         </div>
                                         <div class="card-body">
                                             <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- <div class="col-xl-6 col-lg-7">
-                                    <div class="card shadow mb-4">
-                                        <div class="card-header py-3">
-                                            <h6 class="m-0 font-weight-bold text-chick1">
-                                                สรุปยอดการจ่ายค่าไก่ที่รับเข้าทั้งหมด</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
-                                        </div>
-                                    </div>
-                                </div> -->
+                                
                             </div>
                         </div>
                     </div>

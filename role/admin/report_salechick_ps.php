@@ -59,7 +59,7 @@
                         <div class="card-body">
                             <form action="" method="post">
                                 <div class="row mb-2">
-                                    <div class="col-md-3"></div>
+                                    <div class="col-md-2"></div>
                                     <label for="inputState" class="form-label mt-2">ตั้งแต่วันที่</label>
                                     <div class="col-md-2">
                                         <input type="date" style="border-radius: 30px;" id="start_date"
@@ -69,6 +69,23 @@
                                     <div class="col-md-2">
                                         <input type="date" style="border-radius: 30px;" id="end_date" name="end_date"
                                             class="form-control" required>
+                                    </div>
+                                    <label for="inputState" class="form-label mt-2">เกษตรกรผู้เลี้ยงไก่</label>
+                                    <div class="col-md-2">
+                                        <select class="form-control" aria-label="Default select example" id="agc_name" name="agc_name" style="border-radius: 30px;">
+                                            <option selected disabled>กรุณาเลือกเกษตรกรผู้เลี้ยงไก่....</option>
+                                            <?php 
+                                                $stmt = $db->query("SELECT `agc_id`, `agc_name`  FROM `agriculturist`");
+                                                $stmt->execute();
+                                                $agcs = $stmt->fetchAll();
+                                                
+                                                foreach($agcs as $agc){
+                                            ?>
+                                            <option value="<?= $agc['agc_name']?>"><?= $agc['agc_name']?></option>
+                                            <?php
+                                                }
+                                            ?>
+                                        </select>
                                     </div>
                                     <div class="col-md-2">
                                         <button class="btn btn-primary" style="border-radius: 30px;" type="submit"
