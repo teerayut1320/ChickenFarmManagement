@@ -1,3 +1,20 @@
+<?php
+  require_once '../../connect.php';
+  session_start();  
+
+
+    $id = $_SESSION['agc_id'];
+    // echo "id = ".$id;
+    $check_id = $db->prepare("SELECT * FROM `agriculturist`
+                                INNER JOIN `user_login` 
+                                ON user_login.agc_id = agriculturist.agc_id  WHERE agriculturist.agc_id  = '$id'");
+    $check_id->execute();
+    $agc_id = $check_id->fetch(PDO::FETCH_ASSOC);
+    extract($agc_id);
+    // echo "agc_id = ".$agc_id;
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,6 +29,7 @@
     <title>ข้อมูลส่วนตัวของเกษตรกร</title>
 
     <!-- Custom fonts for this template -->
+    <link  rel="icon" type="image" href="../../img/user-pen-solid.svg" content="IE=edge">
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
@@ -51,15 +69,15 @@
                                                 <div class="col-md-2 mb-2"></div>
                                                 <div class="col-md-2 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">รหัสเกษตรกร</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" value="<?= $agc_id?>" required readonly>
                                                 </div>
                                                 <div class="col-md-3 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่อ-สกุล</label>
-                                                    <input type="text" class="form-control" name="phone" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="phone" style="border-radius: 3rem;" value="<?= $agc_name?>" required >
                                                 </div>
                                                 <div class="col-md-2 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">เบอร์โทรศัพท์</label>
-                                                    <input type="text" class="form-control" name="fname" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="fname" style="border-radius: 3rem;" value="<?= $agc_phone?>" required >
                                                 </div>
                                             </div>
 
@@ -67,23 +85,25 @@
                                                 <div class="col-md-2 mb-2"></div>
                                                 <div class="col-md-3 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่อฟาร์ม</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" value="<?= $agc_Fname?>" required >
                                                 </div>
                                                 <div class="col-md-2 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">ชื่อผู้ใช้งานระบบ</label>
-                                                    <input type="text" class="form-control"  name="password" style="border-radius: 3rem;" required>
+                                                    <input type="text" class="form-control"  name="password" style="border-radius: 3rem;" value="<?= $us_name?>" required>
                                                 </div>
                                                 <div class="col-md-2 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">รหัสผ่าน</label>
-                                                    <input type="text" class="form-control"  name="password" style="border-radius: 3rem;" required>
+                                                    <input type="text" class="form-control"  name="password" style="border-radius: 3rem;"  value="<?= $us_pass?>" required>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4"></div>
+                                                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
                                                 <div class="col-md-4">
                                                     <a href=".php" class="btn btn-danger" style="border-radius: 3rem; font-size: 1rem;">ยกเลิก</a>
+                                                    &nbsp&nbsp
                                                     <button type="submit" class="btn btn-warning" name="submit" style="border-radius: 3rem; font-size: 1rem;">แก้ไขข้อมูล</button>
-                                                    <button type="submit" class="btn btn-primary" name="submit" style="border-radius: 3rem; font-size: 1rem;">บันทึกข้อมูล</button>
+                                                    <!-- <button type="submit" class="btn btn-primary" name="submit" style="border-radius: 3rem; font-size: 1rem;">บันทึกข้อมูล</button> -->
                                                 </div>
                                             </div>
                                         </form>

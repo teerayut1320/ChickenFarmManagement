@@ -1,3 +1,20 @@
+<?php
+  require_once '../../connect.php';
+  session_start();  
+
+    if (isset($_REQUEST['edit_id'])) {
+        $id = $_REQUEST['edit_id'];
+        // echo "id = ".$id;
+        $check_id = $db->prepare("SELECT * FROM `data_chick` WHERE `agc_id` = '$id'");
+        $check_id->execute();
+        $datachick = $check_id->fetch(PDO::FETCH_ASSOC);
+        extract($datachick);
+        // echo "agc_id = ".$agc_id;
+    }
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -51,14 +68,14 @@
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">รหัสข้อมูลไก่</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" value="<?= $id?>" required >
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">วันที่รับเข้า</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" value="<?= $date?>" required >
                                                 </div>
                                             </div>
 
@@ -66,14 +83,14 @@
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">จำนวน(ตัว)</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" value="<?= $quan?>" required >
                                                 </div> 
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">ราคา(บาท)</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" value="<?= $price?>" required >
                                                 </div> 
                                             </div>
                                             <div class="row">

@@ -46,12 +46,13 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_agc.php" method="post">
+                                        <form class="user" action="check_add_datachick.php" method="post">
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
+                                                    <?php $date = date('Y-m-d');?>
                                                     <label for="" style="font-size: 1.125rem;">วันที่รับเข้า</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="date" class="form-control" name="date" max="<?= $date; ?>" style="border-radius: 3rem;" required >
                                                 </div>
                                             </div>
 
@@ -59,14 +60,14 @@
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">จำนวน(ตัว)</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="number" min="1" class="form-control"  name="quan" style="border-radius: 3rem;" required >
                                                 </div> 
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">ราคา(บาท)</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="number" min="1" class="form-control"  name="price" style="border-radius: 3rem;" required >
                                                 </div> 
                                             </div>
                                             <div class="row">
