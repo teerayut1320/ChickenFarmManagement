@@ -69,7 +69,7 @@
             $sql2->execute();
 
             
-            if ($sql) {
+            if ($sql && $sql2) {
                 $_SESSION['success'] = "เพิ่มข้อมูลเรียบร้อยแล้ว";
                 echo "<script>
                     $(document).ready(function() {
@@ -91,5 +91,4 @@
     } catch(PDOException $e) {
         echo $e->getMessage();
     }
-
 ?>

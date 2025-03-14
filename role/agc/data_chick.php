@@ -49,22 +49,21 @@
                                             <th>วันที่รับเข้า</th>
                                             <th>จำนวน (ตัว)</th>
                                             <th>ราคา (บาท)</th>
-                                            <th>เกษตรกร</th>
+                                            <!-- <th>เกษตรกร</th> -->
                                             <th></th>  
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
                                             $id = $_SESSION['agc_id'];
-                                            // echo $id;
-                                            // $check_id = $db->prepare("SELECT  `agc_id` FROM `user_login` WHERE `us_id` = '$id'");
-                                            // $check_id->execute();
-                                            // $agc_id = $check_id->fetch(PDO::FETCH_ASSOC);
-                                            // extract($agc_id);
-
                                             $check_agc = $db->prepare("SELECT * FROM `data_chick` WHERE `agc_id` = '$id'");
                                             $check_agc->execute();
                                             $data_chicks = $check_agc->fetchAll();
+
+                                            // $check_agc_name = $db->prepare("SELECT  `agc_name` FROM `agriculturist` WHERE `agc_id` = '$id'");
+                                            // $check_agc_name->execute();
+                                            // $dcd_agc_name = $check_agc_name->fetch(PDO::FETCH_ASSOC);
+                                            // extract($dcd_agc_name);
 
                                             if (!$data_chicks) {
                                                 echo "<p><td colspan='6' class='text-center'>ไม่พบข้อมูล</td></p>";
@@ -75,7 +74,7 @@
                                             <td><?= $data_chick['dc_date'];?></td>
                                             <td><?= $data_chick['dc_quan'];?></td>
                                             <td><?= $data_chick['dc_price'];?></td>
-                                            <td><?= $data_chick['agc_id'];?></td>
+                                            <!-- <td><?= $agc_name;?></td> -->
                                             <td><a href="edit_datachick.php?edit_id=<?= $data_chick['dc_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลไก่</a></td>
                                         </tr>
                                         <?php
