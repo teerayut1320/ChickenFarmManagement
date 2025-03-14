@@ -14,7 +14,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>ข้อมูลเกษตรกร</title>
+    <title>ข้อมูลไก่</title>
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -32,31 +32,29 @@
 
 <body id="page-top">
     <div id="wrapper">
-        <?php include("../../sidebar/sb_admin.php");?> <!--  Sidebar -->
+        <?php include("../../sidebar/sb_agc.php");?> <!--  Sidebar -->
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
             <?php include("../../topbar/tb_admin.php");?> <!-- Topbar -->
                 <div class="container-fluid">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h3 class="m-0 font-weight-bold text-chick1 text-center">ข้อมูลเกษตรกร</h3>
+                            <h3 class="m-0 font-weight-bold text-chick1 text-center">ข้อมูลไก่</h3>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr align="center">
-                                            <th>ชื่อเกษตรกร</th>
-                                            <th>ชื่อฟาร์ม</th>
-                                            <th>เบอร์โทรศัพท์</th>
-                                            <th>ชื่อผู้ใช้งาน</th>
-                                            <th>รหัสผ่าน</th>  
+                                            <th>วันที่รับเข้า</th>
+                                            <th>จำนวน (ตัว)</th>
+                                            <th>ราคา (บาท)</th>
                                             <th></th>  
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                            $id = $_SESSION['id'];
+                                            $id = $_SESSION['agc_id'];
                                             // echo $id;
                                             // $check_id = $db->prepare("SELECT  `agc_id` FROM `user_login` WHERE `us_id` = '$id'");
                                             // $check_id->execute();
@@ -76,9 +74,7 @@
                                             <td><?= $agc_data['agc_name'];?></td>
                                             <td align="center"><?= $agc_data['agc_Fname'];?></td>
                                             <td align="center"><?= $agc_data['agc_phone'];?></td>
-                                            <td align="center"><?= $agc_data['us_name'];?></td>
-                                            <td align="center"><?= $agc_data['us_pass'];?></td>
-                                            <td align="center"><a href="edit_agriculturist.php?edit_id=<?= $agc_data['agc_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลเกษตรกร</a></td>
+                                            <td align="center"><a href="edit_datachick.php?edit_id=<?= $agc_data['agc_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลไก่</a></td>
                                         </tr>
                                         <?php
                                                 }
@@ -89,8 +85,8 @@
                             </div>
                         </div>
                     </div>
-                    <!-- <buttona type="button" class="btn btn-chick1" style="border-redies" >เพิ่มข้อมูลเกษตรกร</buttona> -->
-                    <a href="add_agriculturist.php" class="btn btn-chick1">เพิ่มข้อมูลเกษตรกร</a>
+                    <!-- <buttona type="button" class="btn btn-chick1" style="border-redies" >เพิ่มข้อมูลไก่</buttona> -->
+                    <a href="add_datachick.php" class="btn btn-chick1">เพิ่มข้อมูลไก่</a>
                 </div>
                 <!-- /.container-fluid -->
 
@@ -126,7 +122,6 @@
 
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>
-    
     
     <script>
         $.extend(true, $.fn.dataTable.defaults, {

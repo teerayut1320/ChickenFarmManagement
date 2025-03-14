@@ -2,7 +2,7 @@
 
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
         <div class="sidebar-brand-icon">
-            <i class="fas fa-user-shield"></i>
+            <i class="fas fa-user-circle"></i>
         </div>
         <div class="sidebar-brand-text mx-3">เกษตรกร</div>
     </a>
@@ -13,38 +13,38 @@
             <span style="font-size: 1rem;">หน้าหลัก</span></a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href=".php">
+        <a class="nav-link" href="data_agc.php">
             <i class="fas fa-users-cog"></i>
             <span style="font-size: 1rem;">ข้อมูลส่วนตัว</span></a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link" href="data_chick.php">
-            <i class="fas fa-users-cog"></i>
+            <i class="fas fa-cart-plus"></i>
             <span style="font-size: 1rem;">ข้อมูลไก่</span></a>
     </li>
     
     <li class="nav-item">
         <a class="nav-link" href="data_food.php">
-            <i class="fas fa-users-cog"></i>
+            <i class="fas fa-seedling"></i>
             <span style="font-size: 1rem;">ข้อมูลอาหารไก่</span></a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link" href="feeding.php">
-            <i class="fas fa-users-cog"></i>
+            <i class="fas fa-hand-holding"></i>
             <span style="font-size: 1rem;">การให้อาหาร</span></a>
     </li>
     
     <li class="nav-item">
-        <a class="nav-link" href="sale.php">
-            <i class="fas fa-users-cog"></i>
+        <a class="nav-link" href="data_sale.php">
+            <i class="fas fa-store"></i>
             <span style="font-size: 1rem;">การขาย</span></a>
     </li>
 
     <li class="nav-item">
-        <a class="nav-link" href="income.php">
-            <i class="fas fa-users-cog"></i>
+        <a class="nav-link" href="data_inex.php">
+            <i class="fas fa-money-bill-alt"></i>
             <span style="font-size: 1rem;">รายรับ-รายจ่าย</span></a>
     </li>
 
