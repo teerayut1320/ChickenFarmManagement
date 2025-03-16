@@ -62,7 +62,7 @@
                                             // $agc_id = $check_id->fetch(PDO::FETCH_ASSOC);
                                             // extract($agc_id);
 
-                                            $check_agc = $db->prepare("SELECT * FROM `agriculturist`INNER JOIN `user_login` ON user_login.agc_id = agriculturist.agc_id");
+                                            $check_agc = $db->prepare("SELECT * FROM `data_feeding` WHERE `agc_id`='$id'");
                                             $check_agc->execute();
                                             $agc_datas = $check_agc->fetchAll();
 
@@ -72,11 +72,11 @@
                                                 foreach($agc_datas as $agc_data)  {
                                         ?>
                                         <tr >
-                                            <td><?= $agc_data['agc_name'];?></td>
-                                            <td align="center"><?= $agc_data['agc_Fname'];?></td>
-                                            <td align="center"><?= $agc_data['agc_phone'];?></td>
-                                            <td align="center"><?= $agc_data['agc_phone'];?></td> 
-                                            <td align="center"><a href="edit_feeding.php?edit_id=<?= $agc_data['agc_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลการให้อาหาร</a></td>
+                                            <td><?= $agc_data['feed_date'];?></td>
+                                            <td align="center"><?= $agc_data['feed_name'];?></td>
+                                            <td align="center"><?= $agc_data['feed_quan'];?></td>
+                                            <td align="center"><?= $agc_data['feed_price'];?></td> 
+                                            <td align="center"><a href="edit_feeding.php?edit_id=<?= $agc_data['feed_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลการให้อาหาร</a></td>
                                         </tr>
                                         <?php
                                                 }

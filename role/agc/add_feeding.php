@@ -1,3 +1,7 @@
+<?php
+  require_once '../../connect.php';
+  session_start();  
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -46,19 +50,33 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_agc.php" method="post">
+                                        <form class="user" action="checkadd_feeding.php" method="post">
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">วันที่ให้อาหาร</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="date" class="form-control" name="date" style="border-radius: 3rem;" required >
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่ออาหาร</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <!-- <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required > -->
+                                                    <select class="form-control" name="name" style="border-radius: 3rem;">
+                                                        <option selected >กรุณาเลือกอาหาร....</option>
+                                                        <?php
+                                                            $id = $_SESSION['agc_id'];
+                                                            $check_agc = $db->prepare("SELECT `df_name` FROM `data_food` WHERE `agc_id` = '$id'");
+                                                            $check_agc->execute();
+                                                            $agc_datas = $check_agc->fetchAll();
+                                                            foreach($agc_datas as $agc_data)  {
+                                                        ?>
+                                                            <option value="<?=$agc_data['df_name']; ?>"><?=$agc_data['df_name']; ?></option>
+                                                        <?php 
+                                                            }
+                                                        ?>
+                                                    </select>
                                                 </div>
                                             </div>
 
@@ -66,21 +84,21 @@
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">ปริมาณอาหาร(กิโลกรัม)</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="number" class="form-control"  name="quan" style="border-radius: 3rem;" required >
                                                 </div> 
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">จำนวนเงิน(บาท)</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="number" class="form-control"  name="price" style="border-radius: 3rem;" required >
                                                 </div> 
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-5"></div>
                                                 <div class="col-md-3">
                                                     <a href="feeding.php" class="btn btn-danger" style="border-radius: 3rem; font-size: 1rem;">ยกเลิก</a>
-                                                    <button type="submit" class="btn btn-chick1" name="submit" style="border-radius: 3rem; font-size: 1rem;">แก้ไขข้อมูล</button>
+                                                    <button type="submit" class="btn btn-chick1" name="submit" style="border-radius: 3rem; font-size: 1rem;">บันทึกข้อมูล</button>
                                                 </div>
 
                                             </div>

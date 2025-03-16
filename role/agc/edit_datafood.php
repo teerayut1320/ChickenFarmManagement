@@ -1,3 +1,17 @@
+<?php
+  require_once '../../connect.php';
+  session_start();  
+
+  if (isset($_REQUEST['edit_id'])) {
+    $id = $_REQUEST['edit_id'];
+    // echo "id = ".$id;
+    $check_df = $db->prepare("SELECT * FROM `data_food` WHERE `df_id` = '$id'");
+    $check_df->execute();
+    $datafood = $check_df->fetch(PDO::FETCH_ASSOC);
+    extract($datafood);
+    // echo "agc_id = ".$agc_id;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -46,19 +60,19 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_agc.php" method="post">
+                                        <form class="user" action="checkedit_dataFood.php" method="post">
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">รหัสอาหารไก่</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="df_id" style="border-radius: 3rem;" value="<?= $df_id ?>" required >
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่ออาหารไก่</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="df_name" style="border-radius: 3rem;" value="<?= $df_name ?>" required >
                                                 </div>
                                             </div>
                                             <div class="row">

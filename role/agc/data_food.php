@@ -59,18 +59,18 @@
                                             // $agc_id = $check_id->fetch(PDO::FETCH_ASSOC);
                                             // extract($agc_id);
 
-                                            $check_agc = $db->prepare("SELECT * FROM `agriculturist`INNER JOIN `user_login` ON user_login.agc_id = agriculturist.agc_id");
-                                            $check_agc->execute();
-                                            $agc_datas = $check_agc->fetchAll();
+                                            $check_df = $db->prepare("SELECT * FROM `data_food` WHERE `agc_id` = '$id'");
+                                            $check_df->execute();
+                                            $food_datas = $check_df->fetchAll();
 
-                                            if (!$agc_datas) {
+                                            if (!$food_datas) {
                                                 echo "<p><td colspan='6' class='text-center'>ไม่พบข้อมูล</td></p>";
                                             } else {
-                                                foreach($agc_datas as $agc_data)  {
+                                                foreach($food_datas as $food_data)  {
                                         ?>
                                         <tr >
-                                            <td><?= $agc_data['agc_name'];?></td>   
-                                            <td align="center"><a href="edit_datafood.php?edit_id=<?= $agc_data['agc_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลอาหารไก่</a></td>
+                                            <td><?= $food_data['df_name'];?></td>   
+                                            <td align="center"><a href="edit_datafood.php?edit_id=<?= $food_data['df_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลอาหารไก่</a></td>
                                         </tr>
                                         <?php
                                                 }

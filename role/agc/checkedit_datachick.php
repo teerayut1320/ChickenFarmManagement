@@ -45,6 +45,8 @@
         // <------------------------กรณีที่ dcd_priceNew มากกว่า---------------------->
         $Difference_price = $dcd_priceNew - $dcd_priceOld ; 
         $dc_priceNEW = $Difference_price + $dc_price;
+
+        
         
         if ($dcd_quanNew == $dcd_quanOld and $dcd_priceNew == $dcd_priceOld) {
             header("location: data_chick.php");
@@ -67,7 +69,7 @@
 
         }else{
             echo "dcd_quanNew != dcd_quanOld แต่ dcd_priceNew != dcd_priceOld";
-            
+
             if ($dcd_priceNew > $dcd_priceOld) {
                 echo "dcd_priceNew > dcd_priceOld";
             }else {

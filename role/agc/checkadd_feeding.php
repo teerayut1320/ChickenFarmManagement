@@ -1,0 +1,47 @@
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<?php
+
+    require_once '../../connect.php';
+    session_start();    
+    
+
+    
+    try {
+        
+        if (isset($_POST['submit'])) {
+            $date = $_POST['date'];
+            $name = $_POST['name'];
+            $quan = $_POST['quan'];
+            $price = $_POST['price'];
+            $agc_id = $_SESSION['agc_id'];
+        
+
+            $sql = $db->prepare("INSERT INTO `data_feeding`( `feed_date`, `feed_name`, `feed_quan`,`feed_price`,`agc_id` ) VALUES ('$date','$name',$quan, $price, '$agc_id')");
+            $sql->execute();
+
+        }
+
+        if ($sql) {
+            $_SESSION['success'] = "เพิ่มข้อมูลเรียบร้อยแล้ว";
+            echo "<script>
+                $(document).ready(function() {
+                    Swal.fire({
+                        title: 'สำเร็จ',
+                        text: 'เพิ่มข้อมูลเรียบร้อยแล้ว',
+                        icon: 'success',
+                        timer: 5000,
+                        showConfirmButton: false
+                    });
+                })
+            </script>";
+            header("refresh:1; url=feeding.php");
+        } else {
+            $_SESSION['error'] = "เพิ่มข้อมูลเรียบร้อยไม่สำเร็จ";
+            header("location:feeding.php");
+        }
+        
+    } catch(PDOException $e) {
+        echo $e->getMessage();
+    }
+?>

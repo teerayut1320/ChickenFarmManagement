@@ -1,3 +1,7 @@
+<?php
+  require_once '../../connect.php';
+  session_start();  
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -46,12 +50,12 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_agc.php" method="post">
+                                        <form class="user" action="check_add_datafood.php" method="post">
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่ออาหาร</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="foodname" style="border-radius: 3rem;" required >
                                                 </div>
                                             </div>
                                             <div class="row">

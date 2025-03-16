@@ -12,6 +12,7 @@
         $price = $_POST['price'];
         $agc_id = $_SESSION['agc_id'];
     }
+    
     try {
 
         $check_agc_id = $db->prepare("SELECT `agc_id` FROM `data_chick`");
