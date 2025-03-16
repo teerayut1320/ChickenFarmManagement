@@ -57,28 +57,23 @@
                                     <tbody>
                                         <?php
                                             $id = $_SESSION['agc_id'];
-                                            // echo $id;
-                                            // $check_id = $db->prepare("SELECT  `agc_id` FROM `user_login` WHERE `us_id` = '$id'");
-                                            // $check_id->execute();
-                                            // $agc_id = $check_id->fetch(PDO::FETCH_ASSOC);
-                                            // extract($agc_id);
 
-                                            $check_agc = $db->prepare("SELECT * FROM `agriculturist`INNER JOIN `user_login` ON user_login.agc_id = agriculturist.agc_id");
+                                            $check_agc = $db->prepare("SELECT * FROM `data_sale`WHERE $agc_id = '$id'");
                                             $check_agc->execute();
-                                            $agc_datas = $check_agc->fetchAll();
+                                            $sales = $check_agc->fetchAll();
 
-                                            if (!$agc_datas) {
+                                            if (!$sales) {
                                                 echo "<p><td colspan='6' class='text-center'>ไม่พบข้อมูล</td></p>";
                                             } else {
-                                                foreach($agc_datas as $agc_data)  {
+                                                foreach($sales as $sale)  {
                                         ?>
                                         <tr >
-                                            <td><?= $agc_data['agc_name'];?></td>
-                                            <td align="center"><?= $agc_data['agc_Fname'];?></td>
-                                            <td align="center"><?= $agc_data['agc_phone'];?></td>
-                                            <td align="center"><?= $agc_data['agc_phone'];?></td> 
-                                            <td align="center"><?= $agc_data['agc_phone'];?></td> 
-                                            <td align="center"><a href="edit_sale.php?edit_id=<?= $agc_data['agc_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลการขาย</a></td>
+                                            <td><?= $sale['sale_date'];?></td>
+                                            <td align="center"><?= $sale['sale_quan'];?></td>
+                                            <td align="center"><?= $sale['sale_weigth'];?></td>
+                                            <td align="center"><?= $sale['sale_priceKg'];?></td> 
+                                            <td align="center"><?= $sale['sale_total'];?></td> 
+                                            <td align="center"><a href="edit_sale.php?edit_id=<?= $sale['sale_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลการขาย</a></td>
                                         </tr>
                                         <?php
                                                 }

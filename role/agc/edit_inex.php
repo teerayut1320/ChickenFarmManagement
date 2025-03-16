@@ -1,3 +1,16 @@
+<?php
+    require_once '../../connect.php';
+    session_start(); 
+    
+    if (isset($_REQUEST['edit_id'])) {
+        $id = $_REQUEST['edit_id'];
+        // echo "id = ".$id;
+        $check_inex = $db->prepare("SELECT * FROM `data_inex` WHERE `inex_id` = '$id'");
+        $check_inex->execute();
+        $inex = $check_inex->fetch(PDO::FETCH_ASSOC);
+        extract($inex);   
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -46,26 +59,31 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_agc.php" method="post">
+                                        <form class="user" action="checkedit_dataInEx.php" method="post">
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">รหัสรายรับ-รายจ่าย</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="id" style="border-radius: 3rem;" value="<?= $inex_id?>" required >
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">วันที่ทำรายการ</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="date" style="border-radius: 3rem;" value="<?= $inex_date?>" required >
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ประเภท</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <!-- <input type="text" class="form-control" name="type" style="border-radius: 3rem;" required > -->
+                                                    <select class="form-control" type="text" name="type" style="border-radius: 3rem;">
+                                                        <option selected value="<?= $inex_type?>"><?= $inex_type?></option>
+                                                        <option value="รายรับ">รายรับ</option>
+                                                        <option value="รายจ่าย">รายจ่าย</option>
+                                                    </select>
                                                 </div>
                                             </div>
 
@@ -73,14 +91,14 @@
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">ชื่อรายการ</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control"  name="name" style="border-radius: 3rem;" value="<?= $inex_name?>" required >
                                                 </div> 
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">จำนวนเงิน(บาท)</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="number" class="form-control"  name="price" style="border-radius: 3rem;" value="<?= $inex_price ?>" required >
                                                 </div> 
                                             </div>
                                             <div class="row">

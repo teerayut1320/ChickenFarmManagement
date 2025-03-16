@@ -1,3 +1,16 @@
+<?php
+    session_start(); 
+    require_once '../../connect.php';
+
+    if (isset($_REQUEST['edit_id'])) {
+        $id = $_REQUEST['edit_id'];
+
+        $check_sale = $db->prepare("SELECT * FROM `data_sale` WHERE `sale_id` = '$id'");
+        $check_sale->execute();
+        $datasale = $check_sale->fetch(PDO::FETCH_ASSOC);
+        extract($datasale);   
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -46,41 +59,38 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_agc.php" method="post">
+                                        <form class="user" action="checkedit_datasale.php" method="post">
                                             <div class="row mb-3">
-                                                <div class="col-md-4 mb-2"></div>
+                                                <div class="col-md-2 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">รหัสการขาย</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="id" style="border-radius: 3rem;" value="<?= $sale_id ?>" required readonly>
                                                 </div>
-                                            </div>
-                                            <div class="row mb-3">
-                                                <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">วันที่ทำรายการขาย</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="date" class="form-control" name="date" style="border-radius: 3rem;" value="<?= $sale_date ?>" required >
                                                 </div>
                                             </div>
+                                            
                                             <div class="row mb-3">
-                                                <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">จำนวนรวม(ตัว)</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="quan" style="border-radius: 3rem;" value="<?= $sale_quan ?>" required >
                                                 </div>
-                                            </div>
-
-                                            <div class="row mb-3">
-                                                <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">น้ำหนักรวม(กิโลกรัม)</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control"  name="weigth" style="border-radius: 3rem;" value="<?= $sale_weigth ?>" required >
+                                                </div> 
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="" style="font-size: 1.125rem;">ราคาต่อกิโลกรัม</label>
+                                                    <input type="text" class="form-control"  name="priceKg" style="border-radius: 3rem;" value="<?= $sale_priceKg ?>" required >
                                                 </div> 
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label for="" style="font-size: 1.125rem;">ราคาต่อกิโลกรัม</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <label for="" style="font-size: 1.125rem;">ราคาสุทธิ</label>
+                                                    <input type="text" class="form-control"  name="total" style="border-radius: 3rem;" value="<?= $sale_total ?>" required >
                                                 </div> 
                                             </div>
                                             <div class="row">

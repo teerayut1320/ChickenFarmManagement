@@ -1,3 +1,7 @@
+<?php
+    session_start(); 
+    require_once '../../connect.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -46,19 +50,19 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_agc.php" method="post">
+                                        <form class="user" action="checkadd_dataSale.php" method="post">
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">วันที่ทำรายการขาย</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="date" class="form-control" name="date" style="border-radius: 3rem;" required >
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">จำนวนรวม(ตัว)</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="number" class="form-control" name="quan" style="border-radius: 3rem;" required >
                                                 </div>
                                             </div>
 
@@ -66,21 +70,21 @@
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">น้ำหนักรวม(กิโลกรัม)</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="number" class="form-control" step="0.1" name="weigth" style="border-radius: 3rem;" required >
                                                 </div> 
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">ราคาต่อกิโลกรัม</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="number" class="form-control"  step="0.1"  name="priceKg" style="border-radius: 3rem;" required >
                                                 </div> 
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-5"></div>
                                                 <div class="col-md-3">
                                                     <a href="data_sale.php" class="btn btn-danger" style="border-radius: 3rem; font-size: 1rem;">ยกเลิก</a>
-                                                    <button type="submit" class="btn btn-chick1" name="submit" style="border-radius: 3rem; font-size: 1rem;">แก้ไขข้อมูล</button>
+                                                    <button type="submit" class="btn btn-chick1" name="submit" style="border-radius: 3rem; font-size: 1rem;">บันทึกข้อมูล</button>
                                                 </div>
 
                                             </div>

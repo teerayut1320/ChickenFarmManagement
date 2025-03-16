@@ -1,8 +1,7 @@
 <?php
-
     require_once '../../connect.php';
     session_start();   
-    ?>
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -51,20 +50,19 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_agc.php" method="post">
+                                        <form class="user" action="checkadd_dataInEx.php" method="post">
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">วันที่ทำรายการ</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="date" class="form-control" name="date" style="border-radius: 3rem;" required >
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ประเภท</label>
-                                                    
-                                                    <select class="form-control" name="name" style="border-radius: 3rem;">
+                                                    <select class="form-control" type="text" name="type" style="border-radius: 3rem;">
                                                         <option selected >กรุณาเลือกประเภท....</option>
                                                         <option value="รายรับ">รายรับ</option>
                                                         <option value="รายจ่าย">รายจ่าย</option>
@@ -76,14 +74,14 @@
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">ชื่อรายการ</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control"  name="name" style="border-radius: 3rem;" required >
                                                 </div> 
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">จำนวนเงิน(บาท)</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="number" class="form-control"  min="1"name="price" style="border-radius: 3rem;" required >
                                                 </div> 
                                             </div>
                                             <div class="row">

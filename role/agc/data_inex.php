@@ -62,21 +62,21 @@
                                             // $agc_id = $check_id->fetch(PDO::FETCH_ASSOC);
                                             // extract($agc_id);
 
-                                            $check_agc = $db->prepare("SELECT * FROM `agriculturist`INNER JOIN `user_login` ON user_login.agc_id = agriculturist.agc_id");
+                                            $check_agc = $db->prepare("SELECT * FROM `data_inex` WHERE `agc_id` =  '$id'");
                                             $check_agc->execute();
-                                            $agc_datas = $check_agc->fetchAll();
+                                            $inexs = $check_agc->fetchAll();
 
-                                            if (!$agc_datas) {
+                                            if (!$inexs) {
                                                 echo "<p><td colspan='6' class='text-center'>ไม่พบข้อมูล</td></p>";
                                             } else {
-                                                foreach($agc_datas as $agc_data)  {
+                                                foreach($inexs as $inex)  {
                                         ?>
                                         <tr >
-                                            <td><?= $agc_data['agc_name'];?></td>
-                                            <td align="center"><?= $agc_data['agc_Fname'];?></td>
-                                            <td align="center"><?= $agc_data['agc_phone'];?></td>
-                                            <td align="center"><?= $agc_data['agc_phone'];?></td> 
-                                            <td align="center"><a href="edit_inex.php?edit_id=<?= $agc_data['agc_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลรายรับ-รายจ่าย</a></td>
+                                            <td><?= $inex['inex_date'];?></td>
+                                            <td align="center"><?= $inex['inex_type'];?></td>
+                                            <td align="center"><?= $inex['inex_name'];?></td>
+                                            <td align="center"><?= $inex['inex_price'];?></td>
+                                            <td align="center"><a href="edit_inex.php?edit_id=<?= $inex['inex_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลรายรับ-รายจ่าย</a></td>
                                         </tr>
                                         <?php
                                                 }
