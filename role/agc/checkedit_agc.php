@@ -42,10 +42,10 @@
                     });
                 })
             </script>";
-            header("refresh:1; url=agriculturist.php");
+            header("refresh:1; url=data_agc.php");
         } else {
             $_SESSION['error'] = "แก้ไขข้อมูลเรียบร้อยไม่สำเร็จ";
-            header("location: agriculturist.php");
+            header("location: data_agc.php");
         }
 
 

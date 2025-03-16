@@ -37,57 +37,122 @@
             <div id="content">
             <?php include("../../topbar/tb_admin.php");?> <!-- Topbar -->
                 <div class="container-fluid">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h3 class="m-0 font-weight-bold text-chick1 text-center">ข้อมูลไก่</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr align="center">
-                                            <th>วันที่รับเข้า</th>
-                                            <th>จำนวน (ตัว)</th>
-                                            <th>ราคา (บาท)</th>
-                                            <!-- <th>เกษตรกร</th> -->
-                                            <th></th>  
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                            $id = $_SESSION['agc_id'];
-                                            $check_agc = $db->prepare("SELECT * FROM `data_chick` WHERE `agc_id` = '$id'");
-                                            $check_agc->execute();
-                                            $data_chicks = $check_agc->fetchAll();
-
-                                            // $check_agc_name = $db->prepare("SELECT  `agc_name` FROM `agriculturist` WHERE `agc_id` = '$id'");
-                                            // $check_agc_name->execute();
-                                            // $dcd_agc_name = $check_agc_name->fetch(PDO::FETCH_ASSOC);
-                                            // extract($dcd_agc_name);
-
-                                            if (!$data_chicks) {
-                                                echo "<p><td colspan='6' class='text-center'>ไม่พบข้อมูล</td></p>";
-                                            } else {
-                                                foreach($data_chicks as $data_chick)  {
-                                        ?>
-                                        <tr align="center">
-                                            <td><?= $data_chick['dc_date'];?></td>
-                                            <td><?= $data_chick['dc_quan'];?></td>
-                                            <td><?= $data_chick['dc_price'];?></td>
-                                            <!-- <td><?= $agc_name;?></td> -->
-                                            <td><a href="edit_datachick.php?edit_id=<?= $data_chick['dc_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลไก่</a></td>
-                                        </tr>
-                                        <?php
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-lg font-weight-bold text-primary text-uppercase mb-1">
+                                                จำนวนไก่ทั้งหมด</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                <?php
+                                                
+    
+                                                $check_data = $db->prepare("SELECT `dc_quan` FROM `data_chick` WHERE `agc_id` = '$agc_id'");
+                                                $check_data->execute();
+                                                $data_chicks = $check_data->fetchAll();
+                                                foreach ($data_chicks as $data_chick) {
+                                                    echo $data_chick['dc_quan']; 
                                                 }
-                                            }
-                                        ?>
-                                    </tbody>
-                                </table>
+                                                ?>
+                                                ตัว</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <!-- <i class="fas fa-calendar fa-2x text-gray-300"></i> -->
+                                            <i class="fas fa-kiwi-bird fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-lg font-weight-bold text-success text-uppercase mb-1">
+                                                จำนวนเงินเงินที่ซื้อไก่</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                <?php
+                                                
+    
+                                                $check_data = $db->prepare("SELECT `dc_price` FROM `data_chick` WHERE `agc_id` = '$agc_id'");
+                                                $check_data->execute();
+                                                $data_chicks = $check_data->fetchAll();
+                                                foreach ($data_chicks as $data_chick) {
+                                                    echo $data_chick['dc_price']; 
+                                                }
+                                                ?>
+                                                บาท</div>
+                                        </div>
+                                        <div class="col-auto">
+
+                                            <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <!-- <buttona type="button" class="btn btn-chick1" style="border-redies" >เพิ่มข้อมูลไก่</buttona> -->
+                    <div class="row">
+                        <div class="col">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h3 class="m-0 font-weight-bold text-chick1 text-center">ข้อมูลไก่</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                            <thead>
+                                                <tr align="center">
+                                                    <th>วันที่รับเข้า</th>
+                                                    <th>จำนวน (ตัว)</th>
+                                                    <th>ราคา (บาท)</th>
+                                                    <!-- <th>เกษตรกร</th> -->
+                                                    <th></th>  
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                    $id = $_SESSION['agc_id'];
+                                                    $check_agc = $db->prepare("SELECT * FROM `data_chick_detail` WHERE `agc_id` = '$id'");
+                                                    $check_agc->execute();
+                                                    $data_chicks = $check_agc->fetchAll();
+
+                                                    // $check_agc_name = $db->prepare("SELECT  `agc_name` FROM `agriculturist` WHERE `agc_id` = '$id'");
+                                                    // $check_agc_name->execute();
+                                                    // $dcd_agc_name = $check_agc_name->fetch(PDO::FETCH_ASSOC);
+                                                    // extract($dcd_agc_name);
+
+                                                    if (!$data_chicks) {
+                                                        echo "<p><td colspan='6' class='text-center'>ไม่พบข้อมูล</td></p>";
+                                                    } else {
+                                                        foreach($data_chicks as $data_chick)  {
+                                                ?>
+                                                <tr align="center">
+                                                    <td><?= $data_chick['dcd_date'];?></td>
+                                                    <td><?= $data_chick['dcd_quan'];?></td>
+                                                    <td><?= $data_chick['dcd_price'];?></td>
+                                                    <!-- <td><?= $agc_name;?></td> -->
+                                                    <td><a href="edit_datachick.php?edit_id=<?= $data_chick['dcd_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลไก่</a></td>
+                                                </tr>
+                                                <?php
+                                                        }
+                                                    }
+                                                ?>
+                                            </tbody>
+                                            
+                                        </table>
+                                        <!-- <a href="add_datachick.php" class="btn btn-chick1">แก้ไขข้อมูลไก่ทั้งหมด</a> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <a href="add_datachick.php" class="btn btn-chick1">เพิ่มข้อมูลไก่</a>
+                    <!-- <buttona type="button" class="btn btn-chick1" style="border-redies" >เพิ่มข้อมูลไก่</buttona> -->
+                    
                 </div>
                 <!-- /.container-fluid -->
 

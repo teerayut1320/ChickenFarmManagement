@@ -64,20 +64,20 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_agc.php" method="post">
+                                        <form class="user" action="checkedit_agc.php" method="post">
                                             <div class="row mb-3">
                                                 <div class="col-md-2 mb-2"></div>
                                                 <div class="col-md-2 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">รหัสเกษตรกร</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" value="<?= $agc_id?>" required readonly>
+                                                    <input type="text" class="form-control" name="agc_id" style="border-radius: 3rem;" value="<?= $agc_id?>" required readonly>
                                                 </div>
                                                 <div class="col-md-3 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่อ-สกุล</label>
-                                                    <input type="text" class="form-control" name="phone" style="border-radius: 3rem;" value="<?= $agc_name?>" required >
+                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" value="<?= $agc_name?>" required >
                                                 </div>
                                                 <div class="col-md-2 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">เบอร์โทรศัพท์</label>
-                                                    <input type="text" class="form-control" name="fname" style="border-radius: 3rem;" value="<?= $agc_phone?>" required >
+                                                    <input type="text" class="form-control" name="phone" maxlength="10"style="border-radius: 3rem;" value="<?= $agc_phone?>" required >
                                                 </div>
                                             </div>
 
@@ -85,11 +85,11 @@
                                                 <div class="col-md-2 mb-2"></div>
                                                 <div class="col-md-3 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่อฟาร์ม</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" value="<?= $agc_Fname?>" required >
+                                                    <input type="text" class="form-control"  name="fname" style="border-radius: 3rem;" value="<?= $agc_Fname?>" required >
                                                 </div>
                                                 <div class="col-md-2 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">ชื่อผู้ใช้งานระบบ</label>
-                                                    <input type="text" class="form-control"  name="password" style="border-radius: 3rem;" value="<?= $us_name?>" required>
+                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" value="<?= $us_name?>" required>
                                                 </div>
                                                 <div class="col-md-2 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">รหัสผ่าน</label>

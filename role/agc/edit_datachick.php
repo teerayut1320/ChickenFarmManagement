@@ -5,7 +5,7 @@
     if (isset($_REQUEST['edit_id'])) {
         $id = $_REQUEST['edit_id'];
         // echo "id = ".$id;
-        $check_id = $db->prepare("SELECT * FROM `data_chick` WHERE `dc_id` = '$id'");
+        $check_id = $db->prepare("SELECT * FROM `data_chick_detail` WHERE `dcd_id` = '$id'");
         $check_id->execute();
         $datachick = $check_id->fetch(PDO::FETCH_ASSOC);
         extract($datachick);
@@ -63,19 +63,19 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_agc.php" method="post">
+                                        <form class="user" action="checkedit_datachick.php" method="post">
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">รหัสข้อมูลไก่</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" value="<?= $dc_id?>" required readonly>
+                                                    <input type="text" class="form-control" name="dcd_id" style="border-radius: 3rem;" value="<?= $dcd_id?>" required readonly>
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">วันที่รับเข้า</label>
-                                                    <input type="date" class="form-control" name="name" style="border-radius: 3rem;" value="<?= $dc_date?>"required >
+                                                    <input type="text" class="form-control" name="dcd_date" style="border-radius: 3rem;" value="<?= $dcd_date?>" required readonly>
                                                 </div>
                                             </div>
 
@@ -83,14 +83,14 @@
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">จำนวน(ตัว)</label>
-                                                    <input type="number" class="form-control"  name="user" style="border-radius: 3rem;" value="<?= $dc_quan?>" required >
+                                                    <input type="number" class="form-control"  name="dcd_quan" style="border-radius: 3rem;" value="<?= $dcd_quan?>" required >
                                                 </div> 
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">ราคา(บาท)</label>
-                                                    <input type="number" class="form-control"  name="user" style="border-radius: 3rem;" value="<?= $dc_price?>" required >
+                                                    <input type="number" class="form-control"  name="dcd_price" style="border-radius: 3rem;" value="<?= $dcd_price?>" required >
                                                 </div> 
                                             </div>
                                             <div class="row">
