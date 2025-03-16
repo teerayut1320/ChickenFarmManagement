@@ -48,36 +48,41 @@
         
         if ($dcd_quanNew == $dcd_quanOld and $dcd_priceNew == $dcd_priceOld) {
             header("location: data_chick.php");
-        }
-        elseif($dcd_quanNew == $dcd_quanOld and $dcd_priceNew != $dcd_priceOld){
+        }elseif($dcd_quanNew == $dcd_quanOld and $dcd_priceNew != $dcd_priceOld){
             echo "dcd_quanNew == dcd_quanOld แต่ dcd_priceNew != dcd_priceOld";
+            if ($dcd_priceNew > $dcd_priceOld) {
+                echo "dcd_priceNew > dcd_priceOld";
+            }else {
+                echo "dcd_priceNew < dcd_priceOld";
+            }
 
         }elseif($dcd_quanNew != $dcd_quanOld and $dcd_priceNew == $dcd_priceOld){
             echo "dcd_quanNew != dcd_quanOld แต่ dcd_priceNew == dcd_priceOld";
 
+            if ($dcd_quanNew > $dcd_quanOld) {
+                echo "dcd_quanNew > dcd_quanOld";
+            }else {
+                echo "dcd_quanNew < dcd_quanOld";
+            }
+
         }else{
             echo "dcd_quanNew != dcd_quanOld แต่ dcd_priceNew != dcd_priceOld";
-        }
-        
-
-
-        if ($dcd_quanNew > $dcd_quanOld) {
-            if($dcd_priceNew > $dcd_priceOld){
-                echo "มากกว่าหรือเท่ากับเก่าทั้งคู่";
-            }else{
-                echo "dcd_quanNew มากกว่า แต่ dcd_priceNew น้อยกว่า";
-            }
-        }else {
+            
             if ($dcd_priceNew > $dcd_priceOld) {
-                
-                echo "dcd_quanNew น้อยกว่า แต่ dcd_priceNew มากกว่า";
+                echo "dcd_priceNew > dcd_priceOld";
             }else {
-                echo "น้อยกว่าหรือเท่ากับเก่าทั้งคู่";
+                echo "dcd_priceNew < dcd_priceOld";
+            }
+
+            if ($dcd_quanNew > $dcd_quanOld) {
+                echo "dcd_quanNew > dcd_quanOld";
+            }else {
+                echo "dcd_quanNew < dcd_quanOld";
             }
         }
-
         
 
+    
         // if ($dcd_quanNew > $dcd_quanOld and $dcd_priceNew > $dcd_priceOld) {
         //     echo "มากกว่าเก่าทั้งคู่";
 
