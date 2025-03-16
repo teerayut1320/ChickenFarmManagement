@@ -1,3 +1,8 @@
+<?php
+
+    require_once '../../connect.php';
+    session_start();   
+    ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -58,7 +63,12 @@
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ประเภท</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    
+                                                    <select class="form-control" name="name" style="border-radius: 3rem;">
+                                                        <option selected >กรุณาเลือกประเภท....</option>
+                                                        <option value="รายรับ">รายรับ</option>
+                                                        <option value="รายจ่าย">รายจ่าย</option>
+                                                    </select>
                                                 </div>
                                             </div>
 

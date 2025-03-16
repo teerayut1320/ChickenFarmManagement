@@ -1,6 +1,10 @@
 <?php
   require_once '../../connect.php';
   session_start();  
+
+//   if (isset($_REQUEST[''];)) {
+//     # code...
+//   }
 ?>
 
 <!DOCTYPE html>
@@ -70,7 +74,10 @@
                                         ?>
                                         <tr >
                                             <td><?= $food_data['df_name'];?></td>   
-                                            <td align="center"><a href="edit_datafood.php?edit_id=<?= $food_data['df_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลอาหารไก่</a></td>
+                                            <td align="center">
+                                                <a href="edit_datafood.php?edit_id=<?= $food_data['df_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลอาหารไก่</a>
+                                                <!-- <a href="?delete_id=<?= $food_data['df_id'];?>" class="btn btn-danger " name="delete" style = "border-radius: 3rem; font-size: .9rem;">ลบข้อมูล</a> -->
+                                            </td>
                                         </tr>
                                         <?php
                                                 }

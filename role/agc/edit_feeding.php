@@ -1,6 +1,15 @@
 <?php
     require_once '../../connect.php';
-    session_start();    
+    session_start(); 
+    
+    if (isset($_REQUEST['edit_id'])) {
+        $id = $_REQUEST['edit_id'];
+        // echo "id = ".$id;
+        $check_df = $db->prepare("SELECT * FROM `data_feeding` WHERE `feed_id` = '$id'");
+        $check_df->execute();
+        $datafood = $check_df->fetch(PDO::FETCH_ASSOC);
+        extract($datafood);   
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,26 +59,40 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_agc.php" method="post">
+                                        <form class="user" action="checkedit_feeding.php" method="post">
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">รหัสการให้อาหารไก่</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" name="id" style="border-radius: 3rem;" value="<?= $feed_id ?>" required > 
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">วันที่ให้อาหาร</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <input type="date" class="form-control" name="date" style="border-radius: 3rem;" value="<?= $feed_date ?>" required > 
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่ออาหาร</label>
-                                                    <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required >
+                                                    <!-- <input type="text" class="form-control" name="name" style="border-radius: 3rem;" value="<?= $feed_name ?>" required > -->
+                                                    <select class="form-control" name="name" style="border-radius: 3rem;"  value="<?= $feed_name ?>">
+                                                        <option selected value="<?= $feed_name ?>"><?= $feed_name ?></option>
+                                                        <?php
+                                                            $id = $_SESSION['agc_id'];
+                                                            $check_agc = $db->prepare("SELECT `df_name` FROM `data_food` WHERE `agc_id` = '$id'");
+                                                            $check_agc->execute();
+                                                            $agc_datas = $check_agc->fetchAll();
+                                                            foreach($agc_datas as $agc_data)  {
+                                                        ?>
+                                                            <option value="<?=$agc_data['df_name']; ?>"><?=$agc_data['df_name']; ?></option>
+                                                        <?php 
+                                                            }
+                                                        ?>
+                                                    </select>
                                                 </div>
                                             </div>
 
@@ -77,14 +100,14 @@
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">ปริมาณอาหาร(กิโลกรัม)</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="number" class="form-control"  name="quan" style="border-radius: 3rem;" value="<?= $feed_quan ?>" required >
                                                 </div> 
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">จำนวนเงิน(บาท)</label>
-                                                    <input type="text" class="form-control"  name="user" style="border-radius: 3rem;" required >
+                                                    <input type="number" class="form-control"  name="price" style="border-radius: 3rem;" value="<?= $feed_price ?>" required >
                                                 </div> 
                                             </div>
                                             <div class="row">
