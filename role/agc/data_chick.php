@@ -1,6 +1,13 @@
 <?php
   require_once '../../connect.php';
-  session_start();  
+  session_start();
+  
+  // ตรวจสอบว่ามี session agc_id หรือไม่
+  if (!isset($_SESSION['agc_id'])) {
+      // ถ้าไม่มี session ให้ redirect ไปหน้า login
+      header('Location: ../../index.php');
+      exit();
+  }
 ?>
 
 <!DOCTYPE html>
@@ -47,14 +54,12 @@
                                                 จำนวนไก่ทั้งหมด</div>
                                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                                 <?php
-                                                
-    
-                                                $check_data = $db->prepare("SELECT `dc_quan` FROM `data_chick` WHERE `agc_id` = '$agc_id'");
+                                                $id = $_SESSION['agc_id'];
+                                                $check_data = $db->prepare("SELECT SUM(dcd_quan) as total_quan FROM data_chick_detail WHERE agc_id = :agc_id");
+                                                $check_data->bindParam(':agc_id', $id);
                                                 $check_data->execute();
-                                                $data_chicks = $check_data->fetchAll();
-                                                foreach ($data_chicks as $data_chick) {
-                                                    echo number_format($data_chick['dc_quan'], 0); 
-                                                }
+                                                $result = $check_data->fetch(PDO::FETCH_ASSOC);
+                                                echo number_format($result['total_quan'] ?? 0, 0);
                                                 ?>
                                                 ตัว</div>
                                         </div>
@@ -72,17 +77,15 @@
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-lg font-weight-bold text-success text-uppercase mb-1">
-                                                จำนวนเงินเงินที่ซื้อไก่</div>
+                                                จำนวนเงินที่ซื้อไก่</div>
                                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                                 <?php
-                                                
-    
-                                                $check_data = $db->prepare("SELECT `dc_price` FROM `data_chick` WHERE `agc_id` = '$agc_id'");
+                                                $id = $_SESSION['agc_id'];
+                                                $check_data = $db->prepare("SELECT SUM(dcd_price) as total_price FROM data_chick_detail WHERE agc_id = :agc_id");
+                                                $check_data->bindParam(':agc_id', $id);
                                                 $check_data->execute();
-                                                $data_chicks = $check_data->fetchAll();
-                                                foreach ($data_chicks as $data_chick) {
-                                                    echo $data_chick['dc_price']; 
-                                                }
+                                                $result = $check_data->fetch(PDO::FETCH_ASSOC);
+                                                echo number_format($result['total_price'] ?? 0, 2);
                                                 ?>
                                                 บาท</div>
                                         </div>
