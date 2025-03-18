@@ -45,7 +45,7 @@
         } 
     ?>
     <div id="wrapper">
-        <?php include("../../sidebar/sb_admin.php");?>
+        <?php include("../../sidebar/sb_agc.php");?>
         <!--  Sidebar -->
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">

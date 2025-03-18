@@ -53,7 +53,7 @@
                                                 $check_data->execute();
                                                 $data_chicks = $check_data->fetchAll();
                                                 foreach ($data_chicks as $data_chick) {
-                                                    echo $data_chick['dc_quan']; 
+                                                    echo number_format($data_chick['dc_quan'], 0); 
                                                 }
                                                 ?>
                                                 ตัว</div>
