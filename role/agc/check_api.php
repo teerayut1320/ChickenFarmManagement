@@ -4,9 +4,11 @@
     header('Content-Type: application/json');
     session_start();    
     
-    $sql = $db->prepare("SELECT MONTH(`inex_date`) as \"month\" , `inex_type` , `inex_price` 
-                         FROM `data_inex` 
-                         WHERE MONTH(`inex_date`) BETWEEN Month('2025-01-01') AND Month('2025-03-31') AND `agc_id`= '22'");
+    $sql = $db->prepare("SELECT MONTH(`dcd_date`) as month , SUM(`dcd_quan`) as total
+                        FROM `data_chick_detail` 
+                        WHERE MONTH(`dcd_date`) BETWEEN Month('2025-01-01') AND Month('2025-03-31') AND `agc_id`= '22'
+                        GROUP BY MONTH(`dcd_date`)
+                        ORDER BY MONTH(`dcd_date`) ASC");
     $sql->execute();
 
     $data_inex = array();

@@ -59,7 +59,7 @@
                         <div class="card-body">
                             <form action="" method="post">
                                 <div class="row mb-2">
-                                    <div class="col-md-2"></div>
+                                    <div class="col-md-3"></div>
                                     <label for="inputState" class="form-label mt-2">ตั้งแต่วันที่</label>
                                     <div class="col-md-2">
                                         <input type="date" style="border-radius: 30px;" id="start_date"
@@ -70,23 +70,7 @@
                                         <input type="date" style="border-radius: 30px;" id="end_date" name="end_date"
                                             class="form-control" required>
                                     </div>
-                                    <label for="inputState" class="form-label mt-2">เกษตรกรผู้เลี้ยงไก่</label>
-                                    <div class="col-md-2">
-                                        <select class="form-control" aria-label="Default select example" id="agc_name" name="agc_name" style="border-radius: 30px;">
-                                            <option selected disabled>กรุณาเลือกเกษตรกรผู้เลี้ยงไก่....</option>
-                                            <?php 
-                                                $stmt = $db->query("SELECT `agc_id`, `agc_name`  FROM `agriculturist`");
-                                                $stmt->execute();
-                                                $agcs = $stmt->fetchAll();
-                                                
-                                                foreach($agcs as $agc){
-                                            ?>
-                                            <option value="<?= $agc['agc_name']?>"><?= $agc['agc_name']?></option>
-                                            <?php
-                                                }
-                                            ?>
-                                        </select>
-                                    </div>
+
                                     <div class="col-md-2">
                                         <button class="btn btn-primary" style="border-radius: 30px;" type="submit"
                                             name="submit">เรียกดู</button>
@@ -97,16 +81,36 @@
                                 if (isset($_POST['submit'])) {
                                     $start_date = $_POST['start_date'];
                                     $end_date = $_POST['end_date'];
+                                    $agc_id = $_SESSION['agc_id'];
+
+                                    $sql_quan = $db->prepare("SELECT MONTH(`dcd_date`) as month , SUM(`dcd_quan`) as total
+                                                                FROM `data_chick_detail` 
+                                                                WHERE MONTH(`dcd_date`) BETWEEN MONTH('$start_date') AND MONTH('$end_date') AND `agc_id` = '$agc_id'
+                                                                GROUP BY MONTH(`dcd_date`)
+                                                                ORDER BY MONTH(`dcd_date`) ASC");
+                                    $sql_quan->execute();
 
 
+                                    $data_quan = array();
+                                    while ($row = $sql_quan->fetch(PDO::FETCH_ASSOC)) {
+                                        $data_quan[] = $row;
+                                    }
+                                    $data_quanResult = json_encode($data_quan);
+                                    // echo $data_quanResult;
 
+                                    $sql2 = $db->prepare("SELECT MONTH(`dcd_date`) as month , SUM(`dcd_price`) as total
+                                                                FROM `data_chick_detail` 
+                                                                WHERE MONTH(`dcd_date`) BETWEEN MONTH('$start_date') AND MONTH('$end_date') AND `agc_id` = '$agc_id'
+                                                                GROUP BY MONTH(`dcd_date`)
+                                                                ORDER BY MONTH(`dcd_date`) ASC");
+                                    $sql2->execute();
 
-
-
-
-
-
-
+                                    $data_price = array();
+                                    while ($row = $sql2->fetch(PDO::FETCH_ASSOC)) {
+                                        $data_price[] = $row;
+                                    }
+                                    $data_priceResult = json_encode($data_price);
+                                    // echo $data_priceResult;
                                 }
 
                             ?>
@@ -128,7 +132,7 @@
                                     <div class="card shadow mb-4">
                                         <div class="card-header py-3">
                                             <h6 class="m-0 font-weight-bold ">
-                                                สรุปยอดจำนวนรับไปเข้าฟาร์มทั้งหมด</h6>
+                                                สรุปยอดจำนวนรับไก่เข้าฟาร์มทั้งหมด</h6>
                                         </div>
                                         <div class="card-body">
                                             <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
@@ -142,7 +146,7 @@
                                                 สรุปยอดการจ่ายค่าไก่ที่รับเข้าทั้งหมด</h6>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
+                                            <div class="chart-bar"> <canvas id="myBarChart1"></canvas> </div>
                                         </div>
                                     </div>
                                 </div>
@@ -185,7 +189,246 @@
     <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
     <!-- Page level custom scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/demo/datatables-demo.js"></script>
+
+    <script>
+
+        const data_quanResult = <?php echo $data_quanResult; ?>;
+        var data_quan = []; 
+        var data_date = [];
+        var data_date_unique = [];
+        data_quanResult.forEach(item => {
+            switch(item.month){ 
+                case '1':
+                    data_quan.push(item.total);
+                    break;
+                case '2':
+                    data_quan.push(item.total);
+                    break;              
+                case '3':
+                    data_quan.push(item.total);
+                    break;
+                case '4':
+                    data_quan.push(item.total);
+                    break;              
+                case '5':
+                    data_quan.push(item.total);
+                    break;
+                case '6':
+                    data_quan.push(item.total);
+                    break;
+                case '7':
+                    data_quan.push(item.total);
+                    break;
+                case '8':
+                    data_quan.push(item.total);
+                    break;  
+                case '9':
+                    data_quan.push(item.total);
+                    break;
+                case '10':
+                    data_quan.push(item.total);
+                    break;
+                case '11':
+                    data_quan.push(item.total);
+                    break;
+                case '12':
+                    data_quan.push(item.total);
+                    break;  
+            }
+            switch(item.month){ 
+                case '1':
+                    data_date.push("มกราคม");
+                    break;      
+                case '2':
+                    data_date.push("กุมภาพันธ์");
+                    break;      
+                case '3':
+                    data_date.push("มีนาคม");
+                    break;
+                case '4':
+                    data_date.push("เมษายน");
+                    break;  
+                case '5':
+                    data_date.push("พฤษภาคม");
+                    break;  
+                case '6':
+                    data_date.push("มิถุนายน");
+                    break;  
+                case '7':
+                    data_date.push("กรกฎาคม");
+                    break;  
+                case '8':
+                    data_date.push("สิงหาคม");
+                    break;  
+                case '9':
+                    data_date.push("กันยายน");
+                    break;      
+                case '10':
+                    data_date.push("ตุลาคม");
+                    break;    
+                case '11':
+                    data_date.push("พฤศจิกายน");
+                    break;      
+                case '12':
+                    data_date.push("ธันวาคม");
+                    break;      
+            }
+        });
+        for (let i = 0; i < data_date.length; i++) {
+            if (data_date_unique.indexOf(data_date[i]) < 0) {
+                data_date_unique.push(data_date[i]);
+            }   
+        }
+
+        var ctx = document.getElementById("myBarChart");    
+        var myBarChart = new Chart(ctx, {   
+            type: 'bar',
+            data: { 
+                labels: data_date_unique,
+                datasets: [{
+                    label: "ปริมาณไก่",
+                    data: data_quan,
+                    backgroundColor: ["#c33e22"],
+                    borderColor: ["#c33e22"], 
+                    pointRadius: 5,
+                    pointBackgroundColor: ["#c33e22"],
+                    pointBorderColor: ["#c33e22"],
+                    pointHoverRadius: 5,
+                }],
+            },  
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }   
+                },
+                legend: {
+                    display: true
+                }       
+            }
+        }); 
+   
+
+
+        const data_priceResult = <?php echo $data_priceResult; ?>;  
+        var data_price = []; 
+        var data_date_price = [];
+        var data_date_price_unique = [];
+            data_priceResult.forEach(item => {
+            switch(item.month){ 
+                case '1':
+                    data_price.push(item.total);
+                    break;
+                case '2':
+                    data_price.push(item.total);
+                    break;
+                case '3':
+                    data_price.push(item.total);
+                    break;
+                case '4':
+                    data_price.push(item.total);
+                    break;
+                case '5':
+                    data_price.push(item.total);
+                    break;
+                case '6':
+                    data_price.push(item.total);
+                    break;
+                case '7':
+                    data_price.push(item.total);
+                    break;
+                case '8':
+                    data_price.push(item.total);
+                    break;
+                case '9':
+                    data_price.push(item.total);
+                    break;
+                case '10':
+                    data_price.push(item.total);
+                    break;
+                case '11':
+                    data_price.push(item.total);
+                    break;
+                case '12':
+                    data_price.push(item.total);
+                    break;
+            }
+            switch(item.month){ 
+                case '1':
+                    data_date_price.push("มกราคม");
+                    break;
+                case '2':
+                    data_date_price.push("กุมภาพันธ์");
+                    break;
+                case '3':
+                    data_date_price.push("มีนาคม");
+                    break;
+                case '4':
+                    data_date_price.push("เมษายน");
+                    break;
+                case '5':
+                    data_date_price.push("พฤษภาคม");
+                    break;
+                case '6':
+                    data_date_price.push("มิถุนายน");
+                    break;
+                case '7':
+                    data_date_price.push("กรกฎาคม");
+                    break;
+                case '8':
+                    data_date_price.push("สิงหาคม");
+                    break;
+                case '9':
+                    data_date_price.push("กันยายน");
+                    break;
+                    case '10':
+                    data_date_price.push("ตุลาคม");
+                    break;
+                case '11':
+                    data_date_price.push("พฤศจิกายน");
+                    break;
+                case '12':
+                    data_date_price.push("ธันวาคม");
+                    break;
+            }         
+        });
+        for (let i = 0; i < data_date_price.length; i++) {
+            if (data_date_price_unique.indexOf(data_date_price[i]) < 0) {
+                data_date_price_unique.push(data_date_price[i]);
+            }   
+        }   
+        var ctx = document.getElementById("myBarChart1");    
+        var myBarChart1 = new Chart(ctx, {   
+            type: 'bar',
+            data: { 
+                labels: data_date_price_unique,
+                datasets: [{    
+                    label: "ค่าใช้จ่าย",
+                    data: data_price,
+                    backgroundColor: ["#2aa251"],
+                    borderColor: ["#2aa251"], 
+                    pointRadius: 5,
+                    pointBackgroundColor: ["#2aa251"],          
+                    pointBorderColor: ["#2aa251"],
+                    pointHoverRadius: 5,
+                }],
+            },  
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }   
+                },
+                legend: {
+                    display: true
+                }                   
+            }
+        });              
+    </script>
 
 </body>
 
