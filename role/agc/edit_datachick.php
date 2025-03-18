@@ -1,3 +1,5 @@
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <?php
   require_once '../../connect.php';
   session_start();  
@@ -52,11 +54,19 @@
           $update->bindParam(':agc_id', $agc_id);
           $update->execute();
 
-          // แสดงข้อความสำเร็จและเปลี่ยนเส้นทาง
-          echo "<script>
-                  alert('แก้ไขข้อมูลสำเร็จ'); 
-                  window.location.href = 'data_chick.php';
-                </script>";
+            $_SESSION['success'] = "แก้ไขข้อมูลเรียบร้อยแล้ว";
+            echo "<script>
+                $(document).ready(function() {
+                    Swal.fire({
+                        title: 'สำเร็จ',
+                        text: 'แก้ไขข้อมูลเรียบร้อยแล้ว',
+                        icon: 'success',
+                        timer: 5000,
+                        showConfirmButton: false
+                    });
+                })
+            </script>";
+            header("refresh:1; url=data_chick.php");
       } catch(PDOException $e) {
           echo "<script>alert('เกิดข้อผิดพลาด: " . $e->getMessage() . "');</script>";
       }
@@ -86,21 +96,7 @@
 
     <!-- Custom styles for this page -->
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
-    <style>
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        .form-control {
-            border-radius: 15px;
-        }
-        .btn {
-            border-radius: 20px;
-        }
-        .card-header {
-            background-color: #f8a94c;
-            color: white;
-        }
-    </style>
+
 </head>
 
 <body id="page-top">
@@ -132,27 +128,27 @@
                                     
                                     <div class="form-group">
                                         <label><strong>รหัสข้อมูลไก่</strong></label>
-                                        <input type="text" class="form-control" value="<?= $data['dcd_id'] ?>" readonly>
+                                        <input type="text" class="form-control" style="border-radius: 3rem;" value="<?= $data['dcd_id'] ?>" readonly>
                                     </div>
                                     
                                     <div class="form-group">
                                         <label><strong>วันที่รับเข้า</strong></label>
-                                        <input type="date" class="form-control" name="dcd_date" value="<?= $data['dcd_date'] ?>" required>
+                                        <input type="date" class="form-control"  style="border-radius: 3rem;" name="dcd_date" value="<?= $data['dcd_date'] ?>" required>
                                     </div>
                                     
                                     <div class="form-group">
                                         <label><strong>จำนวน(ตัว)</strong></label>
-                                        <input type="number" step="0.01" class="form-control" name="dcd_quan" value="<?= $data['dcd_quan'] ?>" required>
+                                        <input type="number" step="0.01" class="form-control"  style="border-radius: 3rem;" name="dcd_quan" value="<?= $data['dcd_quan'] ?>" required>
                                     </div>
                                     
                                     <div class="form-group">
                                         <label><strong>ราคา(บาท)</strong></label>
-                                        <input type="number" step="0.01" class="form-control" name="dcd_price" value="<?= $data['dcd_price'] ?>" required>
+                                        <input type="number" step="0.01" class="form-control"  style="border-radius: 3rem;"  name="dcd_price" value="<?= $data['dcd_price'] ?>" required>
                                     </div>
                                     
                                     <div class="text-center mt-4">
-                                        <a href="data_chick.php" class="btn btn-danger" style="padding: 10px 30px;">ยกเลิก</a>
-                                        <button type="submit" name="submit" class="btn btn-success" style="padding: 10px 30px;">แก้ไขข้อมูล</button>
+                                        <a href="data_chick.php" class="btn btn-danger" style="padding: 10px 30px; border-radius: 50px;">ยกเลิก</a>
+                                        <button type="submit" name="submit" class="btn btn-success" style="padding: 10px 30px; border-radius: 50px;">แก้ไขข้อมูล</button>
                                     </div>
                                 </form>
                             </div>

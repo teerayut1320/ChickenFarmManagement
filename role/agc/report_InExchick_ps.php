@@ -54,12 +54,12 @@
                 <div class="container-fluid">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h3 class="m-0 font-weight-bold text-chick1 text-center">รายงานข้อมูลรายรับ-รายจ่ายรายบุคคล</h3>
+                            <h3 class="m-0 font-weight-bold text-center">รายงานข้อมูลรายรับ-รายจ่าย</h3>
                         </div>
                         <div class="card-body">
                             <form action="" method="post">
                                 <div class="row mb-2">
-                                    <div class="col-md-2"></div>
+                                    <div class="col-md-3"></div>
                                     <label for="inputState" class="form-label mt-2">ตั้งแต่วันที่</label>
                                     <div class="col-md-2">
                                         <input type="date" style="border-radius: 30px;" id="start_date"
@@ -70,23 +70,7 @@
                                         <input type="date" style="border-radius: 30px;" id="end_date" name="end_date"
                                             class="form-control" required>
                                     </div>
-                                    <label for="inputState" class="form-label mt-2">เกษตรกรผู้เลี้ยงไก่</label>
-                                    <div class="col-md-2">
-                                        <select class="form-control" aria-label="Default select example" id="agc_name" name="agc_name" style="border-radius: 30px;">
-                                            <option selected disabled>กรุณาเลือกเกษตรกรผู้เลี้ยงไก่....</option>
-                                            <?php 
-                                                $stmt = $db->query("SELECT `agc_id`, `agc_name`  FROM `agriculturist`");
-                                                $stmt->execute();
-                                                $agcs = $stmt->fetchAll();
-                                                
-                                                foreach($agcs as $agc){
-                                            ?>
-                                            <option value="<?= $agc['agc_name']?>"><?= $agc['agc_name']?></option>
-                                            <?php
-                                                }
-                                            ?>
-                                        </select>
-                                    </div>
+
                                     <div class="col-md-2">
                                         <button class="btn btn-primary" style="border-radius: 30px;" type="submit"
                                             name="submit">เรียกดู</button>
@@ -97,16 +81,19 @@
                                 if (isset($_POST['submit'])) {
                                     $start_date = $_POST['start_date'];
                                     $end_date = $_POST['end_date'];
+                                    $agc_id = $_SESSION['agc_id'];
 
+                                    $sql = $db->prepare("SELECT MONTH(`inex_date`) as \"month\" ,`inex_type`, `inex_price` FROM `data_inex` 
+                                                         WHERE MONTH(`inex_date`) BETWEEN MONTH('$start_date') AND MONTH('$end_date')  AND `agc_id`= '$agc_id' 
+                                                         ORDER BY  MONTH(`inex_date`) ASC");
+                                    $sql->execute();
 
-
-
-
-
-
-
-
-
+                                    $data_inex = array();
+                                    while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
+                                        $data_inex[] = $row;
+                                    }
+                                    $data_inexResult = json_encode($data_inex);
+                                    // echo $data_inexResult;
                                 }
 
                             ?>
@@ -124,18 +111,19 @@
                                 </h5>
                             </div>
                             <div class="row">
-                                <div class="col-xl-12 col-lg-7">
+                                <div class="col-xl-12">
                                     <div class="card shadow mb-4">
                                         <div class="card-header py-3">
-                                            <h6 class="m-0 font-weight-bold text-chick1">
+                                            <h6 class="m-0 font-weight-bold ">
                                                 สรุปยอดรายรับ-รายจ่ายในแต่ละเดือน</h6>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
+                                            <div class="chart-area">
+                                                <canvas id="myAreaChart"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                
                             </div>
                         </div>
                     </div>
@@ -175,8 +163,222 @@
     <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
     <!-- Page level custom scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/demo/datatables-demo.js"></script>
 
+
+    <script>
+        const data_inexResult = <?php echo $data_inexResult; ?>;
+        var data_income = []; 
+        var data_expense = []; 
+        var data_date = [];
+        var data_date_unique = [];
+        data_inexResult.forEach(item => {
+            switch(item.inex_type){
+                case "รายรับ":
+                    switch(item.month){
+                        case '1':
+                            data_income.push(item.inex_price);
+                            break;
+                        case '2':
+                            data_income.push(item.inex_price);
+                            break;
+                        case '3':
+                            data_income.push(item.inex_price);
+                            break;  
+                        case '4':
+                            data_income.push(item.inex_price);
+                            break;
+                        case '5':
+                            data_income.push(item.inex_price);
+                            break;  
+                        case '6':
+                            data_income.push(item.inex_price);
+                            break;
+                        case '7':
+                            data_income.push(item.inex_price);
+                            break;  
+                        case '8':
+                            data_income.push(item.inex_price);
+                            break;
+                        case '9':
+                            data_income.push(item.inex_price);
+                            break;      
+                        case '10':
+                            data_income.push(item.inex_price);
+                            break;  
+                        case '11':
+                            data_income.push(item.inex_price);
+                            break;      
+                        case '12':
+                            data_income.push(item.inex_price);
+                            break;      
+                    }
+                    break;
+                
+                case "รายจ่าย":
+                    switch(item.month){
+                        case '1':
+                            data_expense.push(item.inex_price);
+                            break;
+                        case '2':
+                            data_expense.push(item.inex_price);
+                            break;
+                        case '3':
+                            data_expense.push(item.inex_price);
+                            break;  
+                        case '4':
+                            data_expense.push(item.inex_price);
+                            break;
+                        case '5':
+                            data_expense.push(item.inex_price);
+                            break;  
+                        case '6':
+                            data_expense.push(item.inex_price);
+                            break;
+                        case '7':
+                            data_expense.push(item.inex_price);
+                            break;  
+                        case '8':
+                            data_expense.push(item.inex_price);
+                            break;
+                        case '9':
+                            data_expense.push(item.inex_price);
+                            break;      
+                        case '10':
+                            data_expense.push(item.inex_price);
+                            break;  
+                        case '11':
+                            data_expense.push(item.inex_price);
+                            break;      
+                        case '12':
+                            data_expense.push(item.inex_price);
+                            break; 
+                    }
+                    break;
+            }
+            switch (item.month) {
+                case '1':
+                    data_date.push("มกราคม");
+                    break;
+                case '2':
+                    data_date.push("กุมภาพันธ์");
+                    break;
+                case '3':
+                    data_date.push("มีนาคม");
+                    break;  
+                case '4':
+                    data_date.push("เมษายน");
+                    break;
+                case '5':
+                    data_date.push("พฤษภาคม");
+                    break;  
+                case '6':
+                    data_date.push("มิถุนายน");
+                    break;
+                case '7':
+                    data_date.push("กรกฎาคม");
+                    break;  
+                case '8':
+                    data_date.push("สิงหาคม");
+                    break;
+                case '9':
+                    data_date.push("กันยายน");
+                    break;      
+                case '10':
+                    data_date.push("ตุลาคม");
+                    break;  
+                case '11':
+                    data_date.push("พฤศจิกายน");
+                    break;      
+                case '12':
+                    data_date.push("ธันวาคม");
+                    break; 
+            }
+
+            for (let i = 0; i < data_date.length; i++) {
+                if (data_date_unique.indexOf(data_date[i]) < 0) {
+                    data_date_unique.push(data_date[i]);
+                }
+            }
+        });
+        // console.log(data_inexResult);
+        console.log(data_income);
+        console.log(data_expense);
+        console.log(data_date_unique);
+        
+
+        var ctx = document.getElementById("myAreaChart");
+        var myAreaChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data_date_unique,
+                datasets: [{
+                    label: "รายรับ",
+                    lineTension: 0.3,
+                    backgroundColor: "rgba(78, 115, 223, 0.7)",
+                    borderColor: "rgba(78, 115, 223, 1)",
+                    pointRadius: 5,
+                    pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                    pointBorderColor: "rgba(78, 115, 223, 1)",
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                    pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                    data: data_income,
+                },{
+                    label: "รายจ่าย",
+                    lineTension: 0.3,
+                    backgroundColor: "rgba(255,23,0,0.7)",
+                    borderColor: "rgba(255,23,0,1)",
+                    pointRadius: 5,
+                    pointBackgroundColor: "rgba(255,23,0,1)",
+                    pointBorderColor: "rgba(255,23,0,1)",
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "rgba(178,21,6,1)",
+                    pointHoverBorderColor: "rgba(178,21,6,1)",
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                    data: data_expense,
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 25,
+                        top: 25,
+                        bottom: 0
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                    time: {
+                        unit: 'month'
+                    },
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        maxTicksLimit: 10
+                    },
+                        maxBarThickness: 10,
+                    
+                    }],
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                legend: {
+                    display: true
+                }
+            }
+        });             
+    </script>
 </body>
 
 </html>
+

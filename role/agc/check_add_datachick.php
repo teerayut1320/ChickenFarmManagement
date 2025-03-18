@@ -11,11 +11,13 @@
         $quan = $_POST['quan'];
         $price = $_POST['price'];
         $agc_id = $_SESSION['agc_id'];
+
+        // echo $agc_id;
     }
     
     try {
 
-        $check_agc_id = $db->prepare("SELECT `agc_id` FROM `data_chick`");
+        $check_agc_id = $db->prepare("SELECT DISTINCT(`agc_id`) FROM `data_chick_detail`;");
         $check_agc_id->execute();
 
         $check_id = array();
@@ -23,15 +25,16 @@
             $id = $row["agc_id"];
             array_push($check_id, $id);
         }
-
-        if (!in_array($id,$check_id)) {
-
-
+        // print_r($check_id);
+        if (!in_array($agc_id,$check_id)) {
             $sql = $db->prepare("INSERT INTO `data_chick_detail`(`dcd_date`, `dcd_quan`, `dcd_price`, `agc_id`) VALUES ('$date',$quan, $price, '$agc_id')");
             $sql->execute();
 
             $sql2 = $db->prepare("INSERT INTO `data_chick`(`dc_quan`, `dc_price`, `agc_id`) VALUES ($quan, $price, '$agc_id')");
             $sql2->execute();
+
+            $data_inex = $db->prepare("INSERT INTO `data_inex`(`inex_date`, `inex_type`, `inex_name`, `inex_price`, `agc_id`) VALUES ('$date','รายจ่าย','ค่าซื้อไก่', $price, '$agc_id')");
+            $data_inex->execute();
 
             if ($sql) {
                 $_SESSION['success'] = "เพิ่มข้อมูลเรียบร้อยแล้ว";
@@ -56,6 +59,9 @@
             $sql = $db->prepare("INSERT INTO `data_chick_detail`(`dcd_date`, `dcd_quan`, `dcd_price`, `agc_id`) VALUES ('$date',$quan, $price, '$agc_id')");
             $sql->execute();
 
+            $data_inex = $db->prepare("INSERT INTO `data_inex`(`inex_date`, `inex_type`, `inex_name`, `inex_price`, `agc_id`) VALUES ('$date','รายจ่าย','ค่าซื้อไก่', $price, '$agc_id')");
+            $data_inex->execute();
+
             $check_data = $db->prepare("SELECT * FROM `data_chick` WHERE `agc_id`= '$agc_id'");
             $check_data->execute();
             $dcd_data = $check_data->fetch(PDO::FETCH_ASSOC);
@@ -68,6 +74,8 @@
 
             $sql2 = $db->prepare("UPDATE `data_chick` SET `dc_quan`=$quanNew , `dc_price`= $priceNew WHERE `agc_id`='$agc_id'");
             $sql2->execute();
+
+            
 
             
             if ($sql && $sql2) {

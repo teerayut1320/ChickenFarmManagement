@@ -54,7 +54,7 @@
                 <div class="container-fluid">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h3 class="m-0 font-weight-bold text-chick1 text-center">รายงานข้อมูลไก่รายบุคคล</h3>
+                            <h3 class="m-0 font-weight-bold text-center">รายงานข้อมูลไก่รายบุคคล</h3>
                         </div>
                         <div class="card-body">
                             <form action="" method="post">
@@ -127,7 +127,7 @@
                                 <div class="col-xl-6 col-lg-7">
                                     <div class="card shadow mb-4">
                                         <div class="card-header py-3">
-                                            <h6 class="m-0 font-weight-bold text-chick1">
+                                            <h6 class="m-0 font-weight-bold ">
                                                 สรุปยอดจำนวนรับไปเข้าฟาร์มทั้งหมด</h6>
                                         </div>
                                         <div class="card-body">
@@ -138,7 +138,7 @@
                                 <div class="col-xl-6 col-lg-7">
                                     <div class="card shadow mb-4">
                                         <div class="card-header py-3">
-                                            <h6 class="m-0 font-weight-bold text-chick1">
+                                            <h6 class="m-0 font-weight-bold ">
                                                 สรุปยอดการจ่ายค่าไก่ที่รับเข้าทั้งหมด</h6>
                                         </div>
                                         <div class="card-body">

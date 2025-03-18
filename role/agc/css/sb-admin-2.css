@@ -4554,6 +4554,8 @@ input[type="button"].btn-block {
   margin-bottom: 0;
   background-color: #f8f9fc;
   border-bottom: 1px solid #e3e6f0;
+  background-color: #f8a94c;
+  color: white;
 }
 
 .card-header:first-child {
@@ -10826,7 +10828,7 @@ a:focus {
 
 .chart-area {
   position: relative;
-  height: 10rem;
+  height: 20rem;
   width: 100%;
 }
 

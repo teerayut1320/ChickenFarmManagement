@@ -20,6 +20,10 @@
             $sql = $db->prepare("INSERT INTO `data_feeding`( `feed_date`, `feed_name`, `feed_quan`,`feed_price`,`agc_id` ) VALUES ('$date','$name',$quan, $price, '$agc_id')");
             $sql->execute();
 
+
+            $sql2 = $db->prepare("INSERT INTO `data_inex`(`inex_date`, `inex_type`, `inex_name`, `inex_price`, `agc_id`) VALUES ('$date','รายจ่าย','ค่าอาหาร', $price, '$agc_id')");
+            $sql2->execute();
+
         }
 
         if ($sql) {
