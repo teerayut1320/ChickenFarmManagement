@@ -13,10 +13,17 @@
         $feed_name = $_POST['name'];
         $feed_quan = $_POST['quan'];
         $feed_price = $_POST['price'];
+        $chick_lot = $_POST['chick_lot'];
     }
     try {
-        $sql = $db->prepare("UPDATE `data_feeding` SET `feed_date`='$feed_date',`feed_name`='$feed_name',`feed_quan`='$feed_quan', `feed_price`='$feed_price'
-                            WHERE `feed_id`='$feed_id'");
+        $sql = $db->prepare("UPDATE `data_feeding` SET `feed_date`=:feed_date, `feed_name`=:feed_name, `feed_quan`=:feed_quan, `feed_price`=:feed_price, `dcd_id`=:dcd_id
+                            WHERE `feed_id`=:feed_id");
+        $sql->bindParam(':feed_date', $feed_date);
+        $sql->bindParam(':feed_name', $feed_name);
+        $sql->bindParam(':feed_quan', $feed_quan);
+        $sql->bindParam(':feed_price', $feed_price);
+        $sql->bindParam(':dcd_id', $chick_lot);
+        $sql->bindParam(':feed_id', $feed_id);
         $sql->execute();
 
 

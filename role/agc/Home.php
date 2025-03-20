@@ -50,11 +50,10 @@
                                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                                 <?php
                                                     $id = $_SESSION['agc_id'];
-                                                    $check_data = $db->prepare("SELECT `dc_quan` FROM `data_chick` WHERE `agc_id` = :agc_id");
-                                                    $check_data->bindParam(':agc_id', $id);
+                                                    $check_data = $db->prepare("SELECT SUM(`dcd_quan`) AS total_chick FROM `data_chick_detail` WHERE `agc_id` = '$id'");
                                                     $check_data->execute();
                                                     $result = $check_data->fetch(PDO::FETCH_ASSOC);
-                                                    echo number_format($result['dc_quan'] ?? 0, 2);
+                                                    echo number_format($result['total_chick'] ?? 0, 0);
                                                 ?>
                                                 ตัว</div>
                                         </div>
@@ -76,20 +75,6 @@
                                 <div
                                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                                     <h5 class="m-0 font-weight-bold text-white">สรุปยอดการขายไก่ในปีนี้ (แบบรายเดือน)</h5>
-                                    <div class="dropdown no-arrow">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                            aria-labelledby="dropdownMenuLink">
-                                            <div class="dropdown-header">Dropdown Header:</div>
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Something else here</a>
-                                        </div>
-                                    </div>
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">
@@ -106,20 +91,6 @@
                                 <div
                                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                                     <h5 class="m-0 font-weight-bold text-white">สรุปยอดรายรับ-รายจ่ายในปีนี้</h5>
-                                    <div class="dropdown no-arrow">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                            aria-labelledby="dropdownMenuLink">
-                                            <div class="dropdown-header">Dropdown Header:</div>
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Something else here</a>
-                                        </div>
-                                    </div>
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">
@@ -128,13 +99,10 @@
                                     </div>
                                     <div class="mt-4 text-center small">
                                         <span class="mr-2">
-                                            <i class="fas fa-circle text-primary"></i> Direct
+                                            <i class="fas fa-circle text-primary"></i> รายรับ
                                         </span>
                                         <span class="mr-2">
-                                            <i class="fas fa-circle text-success"></i> Social
-                                        </span>
-                                        <span class="mr-2">
-                                            <i class="fas fa-circle text-info"></i> Referral
+                                            <i class="fas fa-circle text-danger"></i> รายจ่าย
                                         </span>
                                     </div>
                                 </div>
@@ -176,8 +144,172 @@
     <script src="vendor/chart.js/Chart.min.js"></script>
 
     <!-- Page level custom scripts -->
-    <script src="js/demo/chart-area-demo.js"></script>
-    <script src="js/demo/chart-pie-demo.js"></script>
+    <!-- <script src="js/demo/chart-area-demo.js"></script> -->
+    <!-- <script src="js/demo/chart-pie-demo.js"></script> -->
+
+    <!-- ดึงข้อมูลรายรับ-รายจ่าย -->
+    <script>
+    <?php
+        $year = date('Y');
+        // ดึงข้อมูลรายรับ
+        $income = $db->prepare("SELECT COALESCE(SUM(inex_price), 0) as total FROM data_inex WHERE agc_id = :agc_id AND inex_type = 'รายรับ' AND YEAR(inex_date) = :year");
+        $income->execute([':agc_id' => $agc_id, ':year' => $year]);
+        $income_total = $income->fetch(PDO::FETCH_ASSOC)['total'];
+
+        // ดึงข้อมูลรายจ่าย
+        $expense = $db->prepare("SELECT COALESCE(SUM(inex_price), 0) as total FROM data_inex WHERE agc_id = :agc_id AND inex_type = 'รายจ่าย' AND YEAR(inex_date) = :year");
+        $expense->execute([':agc_id' => $agc_id, ':year' => $year]);
+        $expense_total = $expense->fetch(PDO::FETCH_ASSOC)['total'];
+    ?>
+
+    // อัพเดทข้อมูลในกราฟ
+    var ctx = document.getElementById("myPieChart");
+    var myPieChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ["รายรับ", "รายจ่าย"],
+        datasets: [{
+          data: [<?php echo $income_total; ?>, <?php echo $expense_total; ?>],
+          backgroundColor: ['#4e73df', '#e74a3b'],
+          hoverBackgroundColor: ['#2e59d9', '#98160a'],
+          hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+      },
+      options: {
+        maintainAspectRatio: false,
+        tooltips: {
+          backgroundColor: "rgb(255,255,255)",
+          bodyFontColor: "#858796",
+          borderColor: '#dddfeb',
+          borderWidth: 1,
+          xPadding: 15,
+          yPadding: 15,
+          displayColors: false,
+          caretPadding: 10,
+        },
+        legend: {
+          display: false
+        },
+        cutoutPercentage: 80,
+      },
+    });
+    </script>
+
+    <!-- ก่อน </body> -->
+    <script>
+    // ดึงข้อมูลยอดขายรายเดือน
+    <?php
+        $year = date('Y');
+        $monthly_sales = $db->prepare("
+            SELECT 
+                MONTH(sale_date) as month,
+                SUM(sale_total) as total
+            FROM data_sale 
+            WHERE agc_id = :agc_id 
+            AND YEAR(sale_date) = :year
+            GROUP BY MONTH(sale_date)
+            ORDER BY MONTH(sale_date)
+        ");
+        $monthly_sales->execute([':agc_id' => $agc_id, ':year' => $year]);
+        
+        // สร้างอาเรย์ 12 เดือน เริ่มต้นด้วยค่า 0
+        $sales_data = array_fill(1, 12, 0);
+        
+        // เติมข้อมูลยอดขายตามเดือนที่มี
+        while($row = $monthly_sales->fetch(PDO::FETCH_ASSOC)) {
+            $sales_data[$row['month']] = floatval($row['total']);
+        }
+        
+        // แปลงเป็น JSON สำหรับใช้ใน JavaScript
+        $sales_json = json_encode(array_values($sales_data));
+    ?>
+
+    // กราฟเส้น
+    var ctx = document.getElementById("myAreaChart");
+    var myLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."],
+            datasets: [{
+                label: "ยอดขาย",
+                lineTension: 0.3,
+                backgroundColor: "rgba(78, 115, 223, 0.05)",
+                borderColor: "rgba(78, 115, 223, 1)",
+                pointRadius: 3,
+                pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                pointBorderColor: "rgba(78, 115, 223, 1)",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                data: <?php echo $sales_json; ?>,
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 25,
+                    top: 25,
+                    bottom: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        maxTicksLimit: 12
+                    }
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        padding: 10,
+                        callback: function(value, index, values) {
+                            return value.toLocaleString() + ' บาท';
+                        }
+                    },
+                    gridLines: {
+                        color: "rgb(234, 236, 244)",
+                        zeroLineColor: "rgb(234, 236, 244)",
+                        drawBorder: false,
+                        borderDash: [2],
+                        zeroLineBorderDash: [2]
+                    }
+                }],
+            },
+            legend: {
+                display: false
+            },
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                titleMarginBottom: 10,
+                titleFontColor: '#6e707e',
+                titleFontSize: 14,
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                intersect: false,
+                mode: 'index',
+                caretPadding: 10,
+                callbacks: {
+                    label: function(tooltipItem, chart) {
+                        var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                        return datasetLabel + ': ' + tooltipItem.yLabel.toLocaleString() + ' บาท';
+                    }
+                }
+            }
+        }
+    });
+    </script>
 
 </body>
 

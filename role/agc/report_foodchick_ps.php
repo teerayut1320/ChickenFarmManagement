@@ -111,10 +111,54 @@
                                     $data_priceResult = json_encode($data_price);
                                     // echo $data_priceResult;   
 
+                                    // เพิ่ม query สำหรับดึงข้อมูลอาหารตามล็อต
+                                    $sql_food_lot = $db->prepare("
+                                        SELECT 
+                                            f.feed_date,
+                                            f.feed_name,
+                                            f.feed_quan,
+                                            f.dcd_id,
+                                            MONTH(f.feed_date) as month
+                                        FROM data_feeding f
+                                        WHERE f.feed_date BETWEEN :start_date AND :end_date 
+                                        AND f.agc_id = :agc_id 
+                                        ORDER BY f.feed_date ASC
+                                    ");
+                                    $sql_food_lot->execute([
+                                        ':start_date' => $start_date,
+                                        ':end_date' => $end_date,
+                                        ':agc_id' => $agc_id
+                                    ]);
 
+                                    $food_lot_data = array();
+                                    while ($row = $sql_food_lot->fetch(PDO::FETCH_ASSOC)) {
+                                        $food_lot_data[] = $row;
+                                    }
+                                    $food_lot_dataResult = json_encode($food_lot_data);
 
+                                     $sql_food_price_lot = $db->prepare("
+                                        SELECT 
+                                            f.feed_date,
+                                            f.feed_name,
+                                            f.feed_price,
+                                            f.dcd_id,
+                                            MONTH(f.feed_date) as month
+                                        FROM data_feeding f
+                                        WHERE f.feed_date BETWEEN :start_date AND :end_date 
+                                        AND f.agc_id = :agc_id 
+                                        ORDER BY f.feed_date ASC
+                                    ");
+                                    $sql_food_price_lot->execute([
+                                        ':start_date' => $start_date,
+                                        ':end_date' => $end_date,
+                                        ':agc_id' => $agc_id
+                                    ]);
 
-
+                                    $food_lot_dataprice = array();
+                                    while ($row = $sql_food_price_lot->fetch(PDO::FETCH_ASSOC)) {
+                                        $food_lot_dataprice[] = $row;
+                                    }
+                                    $food_lot_datapriceResult = json_encode($food_lot_dataprice);
                                 }   
                             ?>
                             <div class="md-2">
@@ -131,25 +175,79 @@
                                 </h5>
                             </div>
                             <div class="row">
-                                <div class="col-xl-6 col-lg-7">
+                                <div class="col-xl-12 col-lg-12">
                                     <div class="card shadow mb-4">
-                                        <div class="card-header py-3">
-                                            <h6 class="m-0 font-weight-bold ">
-                                                สรุปยอดปริมาณอาหารไก่ที่ให้ในแต่ละเดือน</h6>
+                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                            <h6 class="m-0 font-weight-bold">สรุปยอดปริมาณอาหารไก่ที่ให้ในแต่ละเดือนตามล็อต</h6>
+                                            <div class="d-flex align-items-center">
+                                                <label for="foodLotSelect" class="mr-2">เลือกล็อต:</label>
+                                                <select id="foodLotSelect" class="form-control" style="width: 200px; border-radius: 30px;">
+                                                    <option value="all">ทั้งหมด</option>
+                                                    <?php
+                                                    if (isset($_POST['submit'])) {
+                                                        $sql_lots = $db->prepare("
+                                                            SELECT DISTINCT dcd_id 
+                                                            FROM data_feeding 
+                                                            WHERE feed_date BETWEEN :start_date AND :end_date 
+                                                            AND agc_id = :agc_id 
+                                                            ORDER BY dcd_id ASC
+                                                        ");
+                                                        $sql_lots->execute([
+                                                            ':start_date' => $start_date,
+                                                            ':end_date' => $end_date,
+                                                            ':agc_id' => $agc_id
+                                                        ]);
+                                                        while ($lot = $sql_lots->fetch(PDO::FETCH_ASSOC)) {
+                                                            echo "<option value='{$lot['dcd_id']}'>ล็อต {$lot['dcd_id']}</option>";
+                                                        }
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
+                                            <div class="chart-bar">
+                                                <canvas id="foodLotChart"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-xl-6 col-lg-7">
+                            </div>
+                            <div class="row">
+                                <div class="col-xl-12 col-lg-12">
                                     <div class="card shadow mb-4">
-                                        <div class="card-header py-3">
-                                            <h6 class="m-0 font-weight-bold ">
-                                                สรุปยอดการจ่ายค่าอาหารไก่ในแต่ละเดือน</h6>
+                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                            <h6 class="m-0 font-weight-bold">สรุปยอดการจ่ายค่าอาหารไก่ในแต่ละเดือนตามล็อต</h6>
+                                            <div class="d-flex align-items-center">
+                                                <label for="foodPriceLotSelect" class="mr-2">เลือกล็อต:</label>
+                                                <select id="foodPriceLotSelect" class="form-control" style="width: 200px; border-radius: 30px;">
+                                                    <option value="all">ทั้งหมด</option>
+                                                    <?php
+                                                    if (isset($_POST['submit'])) {
+                                                        $sql_lots = $db->prepare("
+                                                            SELECT DISTINCT dcd_id 
+                                                            FROM data_feeding 
+                                                            WHERE feed_date BETWEEN :start_date AND :end_date 
+                                                            AND agc_id = :agc_id 
+                                                            ORDER BY dcd_id ASC
+                                                        ");
+                                                        $sql_lots->execute([
+                                                            ':start_date' => $start_date,
+                                                            ':end_date' => $end_date,
+                                                            ':agc_id' => $agc_id
+                                                        ]);
+                                                        while ($lot = $sql_lots->fetch(PDO::FETCH_ASSOC)) {
+                                                            echo "<option value='{$lot['dcd_id']}'>ล็อต {$lot['dcd_id']}</option>";
+                                                        }
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart_price"></canvas> </div>
+                                            <div class="chart-bar">
+                                                <canvas id="foodPriceLotChart"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -195,238 +293,191 @@
     <script src="js/demo/datatables-demo.js"></script>
 
     <script>
-        const data_SaleResult = <?php echo $data_SaleResult; ?>;
-        var data_feed = []; 
-        var data_date = [];
-        var data_date_unique = [];
-        data_SaleResult.forEach(item => {
-            switch(item.month){ 
-                case '1':
-                    data_feed.push(item.total);
-                    break;
-                case '2':
-                    data_feed.push(item.total);
-                    break;              
-                case '3':
-                    data_feed.push(item.total);
-                    break;
-                case '4':
-                    data_feed.push(item.total);
-                    break;              
-                case '5':
-                    data_feed.push(item.total);
-                    break;
-                case '6':
-                    data_feed.push(item.total);
-                    break;
-                case '7':
-                    data_feed.push(item.total);
-                    break;
-                case '8':
-                    data_feed.push(item.total);
-                    break;  
-                case '9':
-                    data_feed.push(item.total);
-                    break;
-                case '10':
-                    data_feed.push(item.total);
-                    break;
-                case '11':
-                    data_feed.push(item.total);
-                    break;
-                case '12':
-                    data_feed.push(item.total);
-                    break;  
+        const food_lot_dataResult = <?php echo $food_lot_dataResult ?? '[]'; ?>;
+        let foodLotChart = null;
+
+        function updateFoodChartData(selectedLot) {
+            const filteredData = selectedLot === 'all' 
+                ? food_lot_dataResult 
+                : food_lot_dataResult.filter(item => item.dcd_id === selectedLot);
+
+            const monthlyData = {};
+            const thaiMonths = {
+                1: 'มกราคม', 2: 'กุมภาพันธ์', 3: 'มีนาคม', 4: 'เมษายน',
+                5: 'พฤษภาคม', 6: 'มิถุนายน', 7: 'กรกฎาคม', 8: 'สิงหาคม',
+                9: 'กันยายน', 10: 'ตุลาคม', 11: 'พฤศจิกายน', 12: 'ธันวาคม'
+            };
+
+            const colorPalette = [
+                '#FF6384', '#36A2EB', '#4BC0C0', '#FFCD56', '#9966FF', '#FF9F40',
+                '#32CD32', '#FF69B4', '#4169E1', '#FFB6C1', '#20B2AA', '#BA55D3'
+            ];
+
+            filteredData.forEach(item => {
+                const month = parseInt(item.month);
+                if (!monthlyData[month]) {
+                    monthlyData[month] = 0;
+                }
+                monthlyData[month] += parseFloat(item.feed_quan);
+            });
+
+            const labels = Object.keys(monthlyData).map(month => thaiMonths[month]);
+            const data = Object.values(monthlyData);
+
+            if (foodLotChart) {
+                foodLotChart.destroy();
             }
-            switch(item.month){ 
-                case '1':
-                    data_date.push("มกราคม");
-                    break;      
-                case '2':
-                    data_date.push("กุมภาพันธ์");
-                    break;      
-                case '3':
-                    data_date.push("มีนาคม");
-                    break;
-                case '4':
-                    data_date.push("เมษายน");
-                    break;  
-                case '5':
-                    data_date.push("พฤษภาคม");
-                    break;  
-                case '6':
-                    data_date.push("มิถุนายน");
-                    break;  
-                case '7':
-                    data_date.push("กรกฎาคม");
-                    break;  
-                case '8':
-                    data_date.push("สิงหาคม");
-                    break;  
-                case '9':
-                    data_date.push("กันยายน");
-                    break;      
-                case '10':
-                    data_date.push("ตุลาคม");
-                    break;    
-                case '11':
-                    data_date.push("พฤศจิกายน");
-                    break;      
-                case '12':
-                    data_date.push("ธันวาคม");
-                    break;      
-            }
-        });
-        for (let i = 0; i < data_date.length; i++) {
-            if (data_date_unique.indexOf(data_date[i]) < 0) {
-                data_date_unique.push(data_date[i]);
-            }   
+
+            const ctx = document.getElementById("foodLotChart");
+            foodLotChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: selectedLot === 'all' ? "ปริมาณอาหารทั้งหมด" : `ปริมาณอาหารล็อต ${selectedLot}`,
+                        data: data,
+                        backgroundColor: colorPalette,
+                        borderColor: colorPalette,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + ' กก.';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + 
+                                           context.parsed.y.toLocaleString() + ' กก.';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
 
-        var ctx = document.getElementById("myBarChart");    
-        var myBarChart = new Chart(ctx, {   
-            type: 'bar',
-            data: { 
-                labels: data_date_unique,
-                datasets: [{
-                    label: "ปริมาณอาหาร",
-                    data: data_feed,
-                    backgroundColor: ["#c33e22"],
-                    borderColor: ["#c33e22"], 
-                    pointRadius: 5,
-                    pointBackgroundColor: ["#c33e22"],
-                    pointBorderColor: ["#c33e22"],
-                    pointHoverRadius: 5,
-                }],
-            },  
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }   
-                },
-                legend: {
-                    display: true
-                }       
-            }
-        }); 
-   
-        const data_priceResult = <?php echo $data_priceResult; ?>;  
-        var data_price = []; 
-        var data_date_price = [];
-        var data_date_price_unique = [];
-            data_priceResult.forEach(item => {
-            switch(item.month){ 
-                case '1':
-                    data_price.push(item.total);
-                    break;
-                case '2':
-                    data_price.push(item.total);
-                    break;
-                case '3':
-                    data_price.push(item.total);
-                    break;
-                case '4':
-                    data_price.push(item.total);
-                    break;
-                case '5':
-                    data_price.push(item.total);
-                    break;
-                case '6':
-                    data_price.push(item.total);
-                    break;
-                case '7':
-                    data_price.push(item.total);
-                    break;
-                case '8':
-                    data_price.push(item.total);
-                    break;
-                case '9':
-                    data_price.push(item.total);
-                    break;
-                case '10':
-                    data_price.push(item.total);
-                    break;
-                case '11':
-                    data_price.push(item.total);
-                    break;
-                case '12':
-                    data_price.push(item.total);
-                    break;
-            }
-            switch(item.month){ 
-                case '1':
-                    data_date_price.push("มกราคม");
-                    break;
-                case '2':
-                    data_date_price.push("กุมภาพันธ์");
-                    break;
-                case '3':
-                    data_date_price.push("มีนาคม");
-                    break;
-                case '4':
-                    data_date_price.push("เมษายน");
-                    break;
-                case '5':
-                    data_date_price.push("พฤษภาคม");
-                    break;
-                case '6':
-                    data_date_price.push("มิถุนายน");
-                    break;
-                case '7':
-                    data_date_price.push("กรกฎาคม");
-                    break;
-                case '8':
-                    data_date_price.push("สิงหาคม");
-                    break;
-                case '9':
-                    data_date_price.push("กันยายน");
-                    break;
-                    case '10':
-                    data_date_price.push("ตุลาคม");
-                    break;
-                case '11':
-                    data_date_price.push("พฤศจิกายน");
-                    break;
-                case '12':
-                    data_date_price.push("ธันวาคม");
-                    break;
-            }         
+        // เพิ่ม Event Listener สำหรับ select
+        document.getElementById('foodLotSelect').addEventListener('change', function(e) {
+            updateFoodChartData(e.target.value);
         });
-        for (let i = 0; i < data_date_price.length; i++) {
-            if (data_date_price_unique.indexOf(data_date_price[i]) < 0) {
-                data_date_price_unique.push(data_date_price[i]);
-            }   
-        }   
-        var ctx_price = document.getElementById("myBarChart_price");    
-        var myBarChart_price = new Chart(ctx_price, {   
-            type: 'bar',
-            data: { 
-                labels: data_date_price_unique,
-                datasets: [{    
-                    label: "ค่าอาหาร",
-                    data: data_price,
-                    backgroundColor: ["#2aa251"],
-                    borderColor: ["#2aa251"], 
-                    pointRadius: 5,
-                    pointBackgroundColor: ["#2aa251"],          
-                    pointBorderColor: ["#2aa251"],
-                    pointHoverRadius: 5,
-                }],
-            },  
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }   
-                },
-                legend: {
-                    display: true
-                }                   
+
+        // สร้างกราฟครั้งแรกแสดงข้อมูลทั้งหมด
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFoodChartData('all');
+        });
+
+
+        const food_lot_datapriceResult = <?php echo $food_lot_datapriceResult ?? '[]'; ?>;
+
+        let foodPriceLotChart = null;
+
+        function updateFoodPriceChartData(selectedLot) {
+            const filteredData = selectedLot === 'all' 
+                ? food_lot_datapriceResult 
+                : food_lot_datapriceResult.filter(item => item.dcd_id === selectedLot);
+
+            const monthlyData = {};
+            const thaiMonths = {
+                1: 'มกราคม', 2: 'กุมภาพันธ์', 3: 'มีนาคม', 4: 'เมษายน',
+                5: 'พฤษภาคม', 6: 'มิถุนายน', 7: 'กรกฎาคม', 8: 'สิงหาคม',
+                9: 'กันยายน', 10: 'ตุลาคม', 11: 'พฤศจิกายน', 12: 'ธันวาคม'
+            };
+
+            const colorPalette = [
+                '#FF9F40', // ส้มสด
+                '#32CD32', // เขียวสด
+                '#FF69B4', // ชมพูอ่อน
+                '#4169E1', // น้ำเงินรอยัล
+                '#FFB6C1', // ชมพูพาสเทล
+                '#FF6384', // ชมพูเข้ม
+                '#36A2EB', // ฟ้าสด
+                '#4BC0C0', // เขียวมิ้นท์
+                '#FFCD56', // เหลืองทอง
+                '#9966FF', // ม่วงอ่อน
+                '#20B2AA', // เขียวฟ้าอ่อน
+                '#BA55D3'  // ม่วงกลาง
+            ];
+
+            filteredData.forEach(item => {
+                const month = parseInt(item.month);
+                if (!monthlyData[month]) {
+                    monthlyData[month] = 0;
+                }
+                monthlyData[month] += parseFloat(item.feed_price);
+            });
+
+            const labels = Object.keys(monthlyData).map(month => thaiMonths[month]);
+            const data = Object.values(monthlyData);
+
+            if (foodPriceLotChart) {
+                foodPriceLotChart.destroy();
             }
-        });              
+
+            const ctx = document.getElementById("foodPriceLotChart");
+            foodPriceLotChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: selectedLot === 'all' ? "ค่าอาหารทั้งหมด" : `ค่าอาหารล็อต ${selectedLot}`,
+                        data: data,
+                        backgroundColor: colorPalette,
+                        borderColor: colorPalette,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + ' บาท';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + 
+                                           context.parsed.y.toLocaleString() + ' บาท';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // เพิ่ม Event Listener สำหรับ select ใหม่
+        document.getElementById('foodPriceLotSelect').addEventListener('change', function(e) {
+            updateFoodPriceChartData(e.target.value);
+        });
+
+        // สร้างกราฟราคาครั้งแรกแสดงข้อมูลทั้งหมด
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFoodPriceChartData('all');
+        });
     </script>
 
 </body>

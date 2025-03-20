@@ -49,7 +49,15 @@
         <!--  Sidebar -->
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
-                <?php include("../../topbar/tb_admin.php");?>
+                <?php 
+                if (file_exists("../../topbar/tb_admin.php")) {
+                    include("../../topbar/tb_admin.php");
+                } else {
+                    echo '<div class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                            <!-- Topbar content -->
+                          </div>';
+                }
+                ?>
                 <!-- Topbar -->
                 <div class="container-fluid">
                     <div class="card shadow mb-4">
@@ -83,27 +91,34 @@
                                 $end_date = $_POST['end_date'];
                                 $agc_id = $_SESSION['agc_id'];
 
-                                $sql = $db->prepare("SELECT MONTH(`sale_date`) as month  , SUM(`sale_total`) as total
-                                                    FROM `data_sale` 
-                                                    WHERE MONTH(`sale_date`) BETWEEN MONTH('$start_date') AND MONTH('$end_date') AND `agc_id` = '$agc_id'
-                                                    GROUP BY MONTH(`sale_date`)
-                                                    ORDER BY  MONTH(`sale_date`) ASC");
-                                $sql->execute();
+                                $sql_sale_lot = $db->prepare("
+                                    SELECT 
+                                        s.sale_date,
+                                        s.sale_total,
+                                        s.dcd_id,
+                                        MONTH(s.sale_date) as month
+                                    FROM data_sale s
+                                    WHERE s.sale_date BETWEEN :start_date AND :end_date 
+                                    AND s.agc_id = :agc_id 
+                                    ORDER BY s.sale_date ASC
+                                ");
+                                $sql_sale_lot->execute([
+                                    ':start_date' => $start_date,
+                                    ':end_date' => $end_date,
+                                    ':agc_id' => $agc_id
+                                ]);
 
-                                $data_Sale = array();
-                                while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
-                                    $data_Sale[] = $row;
+                                $sale_lot_data = array();
+                                while ($row = $sql_sale_lot->fetch(PDO::FETCH_ASSOC)) {
+                                    $sale_lot_data[] = $row;
                                 }
-                                $data_SaleResult = json_encode($data_Sale);
-                                // echo $data_SaleResult;
+                                $sale_lot_dataResult = json_encode($sale_lot_data);
                             }
 
                             ?>
                             <div class="md-2">
                                 <h5 class="m-0 font-weight-bold text-primary text-center mb-2">ช่วงเวลาที่กำหนด
                                     <?php
-                                        // echo "start_date".$start_date;
-                                        // echo "end_date".$end_date;
                                         if (empty($start_date) and empty($end_date)) {
                                             echo "ยังไม่กำหนดช่วงเวลา";
                                         }else {
@@ -113,20 +128,43 @@
                                 </h5>
                             </div>
                             <div class="row">
-                                <div class="col-xl-12 col-lg-7">
+                                <div class="col-xl-12 col-lg-12">
                                     <div class="card shadow mb-4">
-                                        <div class="card-header py-3">
-                                            <h6 class="m-0 font-weight-bold ">
-                                                สรุปยอดการขายไก่ในแต่ละเดือน</h6>
+                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                            <h6 class="m-0 font-weight-bold">สรุปยอดการขายไก่ในแต่ละเดือนตามล็อต</h6>
+                                            <div class="d-flex align-items-center">
+                                                <label for="saleLotSelect" class="mr-2">เลือกล็อต:</label>
+                                                <select id="saleLotSelect" class="form-control" style="width: 200px; border-radius: 30px;">
+                                                    <option value="all">ทั้งหมด</option>
+                                                    <?php
+                                                    if (isset($_POST['submit'])) {
+                                                        $sql_lots = $db->prepare("
+                                                            SELECT DISTINCT dcd_id 
+                                                            FROM data_sale 
+                                                            WHERE sale_date BETWEEN :start_date AND :end_date 
+                                                            AND agc_id = :agc_id 
+                                                            ORDER BY dcd_id ASC
+                                                        ");
+                                                        $sql_lots->execute([
+                                                            ':start_date' => $start_date,
+                                                            ':end_date' => $end_date,
+                                                            ':agc_id' => $agc_id
+                                                        ]);
+                                                        while ($lot = $sql_lots->fetch(PDO::FETCH_ASSOC)) {
+                                                            echo "<option value='{$lot['dcd_id']}'>ล็อต {$lot['dcd_id']}</option>";
+                                                        }
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div class="card-body">
                                             <div class="chart-bar">
-                                                <canvas id="myBarChart"></canvas>
+                                                <canvas id="saleLotChart"></canvas>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                
                             </div>
                         </div>
                     </div>
@@ -171,122 +209,91 @@
 
 
     <script>
-        const data_SaleResult = <?php echo $data_SaleResult; ?>;
-        var data_sale = []; 
-        var data_date = [];
-        var data_date_unique = [];
-            data_SaleResult.forEach(item => {
-                switch(item.month){
-                    case '1':
-                        data_sale.push(item.total);
-                        break;
-                    case '2':
-                        data_sale.push(item.total);
-                        break;
-                    case '3':
-                        data_sale.push(item.total);
-                        break;
-                    case '4':
-                        data_sale.push(item.total);
-                        break;  
-                    case '5':
-                        data_sale.push(item.total);
-                        break;
-                    case '6':
-                        data_sale.push(item.total);
-                        break;  
-                    case '7':
-                        data_sale.push(item.total);
-                        break;
-                    case '8':
-                        data_sale.push(item.total);
-                        break;
-                    case '9':
-                        data_sale.push(item.total);
-                        break;
-                    case '10':
-                        data_sale.push(item.total);
-                        break;
-                    case '11':
-                        data_sale.push(item.total);
-                        break;
-                    case '12':
-                        data_sale.push(item.total);
-                        break;
-                        
+        const sale_lot_dataResult = <?php echo $sale_lot_dataResult ?? '[]'; ?>;
+        let saleLotChart = null;
+
+        function updateSaleChartData(selectedLot) {
+            const filteredData = selectedLot === 'all' 
+                ? sale_lot_dataResult 
+                : sale_lot_dataResult.filter(item => item.dcd_id === selectedLot);
+
+            const monthlyData = {};
+            const thaiMonths = {
+                1: 'มกราคม', 2: 'กุมภาพันธ์', 3: 'มีนาคม', 4: 'เมษายน',
+                5: 'พฤษภาคม', 6: 'มิถุนายน', 7: 'กรกฎาคม', 8: 'สิงหาคม',
+                9: 'กันยายน', 10: 'ตุลาคม', 11: 'พฤศจิกายน', 12: 'ธันวาคม'
+            };
+
+            const colorPalette = [
+                '#FF6384', '#36A2EB', '#4BC0C0', '#FFCD56', '#9966FF', '#FF9F40',
+                '#32CD32', '#FF69B4', '#4169E1', '#FFB6C1', '#20B2AA', '#BA55D3'
+            ];
+
+            filteredData.forEach(item => {
+                const month = parseInt(item.month);
+                if (!monthlyData[month]) {
+                    monthlyData[month] = 0;
                 }
-                switch(item.month){ 
-                    case '1':
-                        data_date.push("มกราคม");
-                        break;
-                    case '2':
-                        data_date.push("กุมภาพันธ์");
-                        break;      
-                    case '3':
-                        data_date.push("มีนาคม");
-                        break;
-                    case '4':
-                        data_date.push("เมษายน");
-                        break;  
-                    case '5':
-                        data_date.push("พฤษภาคม");
-                        break;
-                    case '6':
-                        data_date.push("มิถุนายน");
-                        break;  
-                    case '7':
-                        data_date.push("กรกฎาคม");
-                        break;
-                    case '8':
-                        data_date.push("สิงหาคม");
-                        break;  
-                    case '9':
-                        data_date.push("กันยายน");
-                        break;      
-                    case '10':
-                        data_date.push("ตุลาคม");
-                        break;    
-                    case '11':
-                        data_date.push("พฤศจิกายน");
-                        break;      
-                    case '12':
-                        data_date.push("ธันวาคม");
-                        break;  
+                monthlyData[month] += parseFloat(item.sale_total);
+            });
+
+            const labels = Object.keys(monthlyData).map(month => thaiMonths[month]);
+            const data = Object.values(monthlyData);
+
+            if (saleLotChart) {
+                saleLotChart.destroy();
+            }
+
+            const ctx = document.getElementById("saleLotChart");
+            saleLotChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: selectedLot === 'all' ? "ยอดขายทั้งหมด" : `ยอดขายล็อต ${selectedLot}`,
+                        data: data,
+                        backgroundColor: colorPalette,
+                        borderColor: colorPalette,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + ' บาท';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + 
+                                           context.parsed.y.toLocaleString() + ' บาท';
+                                }
+                            }
+                        }
+                    }
                 }
             });
-        for (let i = 0; i < data_date.length; i++) {
-            if (data_date_unique.indexOf(data_date[i]) < 0) {
-                data_date_unique.push(data_date[i]);
-            }
         }
 
-        var ctx = document.getElementById("myBarChart");    
-        var myBarChart = new Chart(ctx, {   
-            type: 'bar',
-            data: {
-                labels: data_date_unique,
-                datasets: [{
-                    label: "ยอดขาย",
-                    data: data_sale,
-                    backgroundColor: ["#ef34f6","#ec396e","#6a4903","#9f9f9f","#c33e22","#ec9206","#eef73e","#87be7e","#2aa251","#17d1ae","#256ae3","#8450ca"],
-                    borderColor: ["#ef34f6","#ec396e","#6a4903","#9f9f9f","#c33e22","#ec9206","#eef73e","#87be7e","#2aa251","#17d1ae","#256ae3","#8450ca"],
-                    pointRadius: 5,
-                    pointBackgroundColor: ["#ef34f6","#ec396e","#6a4903","#9f9f9f","#c33e22","#ec9206","#eef73e","#87be7e","#2aa251","#17d1ae","#256ae3","#8450ca"],
-                    pointBorderColor: ["#ef34f6","#ec396e","#6a4903","#9f9f9f","#c33e22","#ec9206","#eef73e","#87be7e","#2aa251","#17d1ae","#256ae3","#8450ca"],
-                    pointHoverRadius: 5,
-                }],
-            },
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
-                legend: {
-                    display: true
-                }       
-            }
+        // เพิ่ม Event Listener สำหรับ select
+        document.getElementById('saleLotSelect').addEventListener('change', function(e) {
+            updateSaleChartData(e.target.value);
+        });
+
+        // สร้างกราฟครั้งแรกแสดงข้อมูลทั้งหมด
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSaleChartData('all');
         });
     </script>
 

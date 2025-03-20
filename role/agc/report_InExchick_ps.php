@@ -316,31 +316,33 @@
                 datasets: [{
                     label: "รายรับ",
                     lineTension: 0.3,
-                    backgroundColor: "rgba(78, 115, 223, 0.7)",
+                    backgroundColor: "rgba(78, 115, 223, 0.1)",
                     borderColor: "rgba(78, 115, 223, 1)",
                     pointRadius: 5,
                     pointBackgroundColor: "rgba(78, 115, 223, 1)",
                     pointBorderColor: "rgba(78, 115, 223, 1)",
-                    pointHoverRadius: 5,
+                    pointHoverRadius: 7,
                     pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
                     pointHoverBorderColor: "rgba(78, 115, 223, 1)",
                     pointHitRadius: 10,
                     pointBorderWidth: 2,
                     data: data_income,
+                    fill: true
                 },{
                     label: "รายจ่าย",
                     lineTension: 0.3,
-                    backgroundColor: "rgba(255,23,0,0.7)",
+                    backgroundColor: "rgba(255,23,0,0.1)",
                     borderColor: "rgba(255,23,0,1)",
                     pointRadius: 5,
                     pointBackgroundColor: "rgba(255,23,0,1)",
                     pointBorderColor: "rgba(255,23,0,1)",
-                    pointHoverRadius: 5,
+                    pointHoverRadius: 7,
                     pointHoverBackgroundColor: "rgba(178,21,6,1)",
                     pointHoverBorderColor: "rgba(178,21,6,1)",
                     pointHitRadius: 10,
                     pointBorderWidth: 2,
                     data: data_expense,
+                    fill: true
                 }],
             },
             options: {
@@ -354,26 +356,71 @@
                     }
                 },
                 scales: {
-                    xAxes: [{
-                    time: {
-                        unit: 'month'
+                    x: {
+                        grid: {
+                            display: false
+                        }
                     },
-                    gridLines: {
-                        display: false,
-                        drawBorder: false
-                    },
-                    ticks: {
-                        maxTicksLimit: 10
-                    },
-                        maxBarThickness: 10,
-                    
-                    }],
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grid: {
+                            color: "rgba(0, 0, 0, 0.1)"
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('th-TH', {
+                                    style: 'currency',
+                                    currency: 'THB',
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0
+                                });
+                            }
+                        }
                     }
                 },
-                legend: {
-                    display: true
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 14
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed.y.toLocaleString('th-TH', {
+                                    style: 'currency',
+                                    currency: 'THB',
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0
+                                });
+                                return label;
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                elements: {
+                    line: {
+                        tension: 0.3
+                    }
                 }
             }
         });             

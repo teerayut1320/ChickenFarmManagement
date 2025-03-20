@@ -61,16 +61,39 @@
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
+                                                    <label for="" style="font-size: 1.125rem;">รหัสล็อตไก่</label>
+                                                    <select class="form-control" name="chick_lot" style="border-radius: 3rem;" required>
+                                                        <option selected disabled>กรุณาเลือกล็อตไก่....</option>
+                                                        <?php
+                                                            $id = $_SESSION['agc_id'];
+                                                            $check_lots = $db->prepare("SELECT `dcd_id`, `dcd_date`, `dcd_quan` FROM `data_chick_detail` WHERE `agc_id` = :id ORDER BY `dcd_id` DESC");
+                                                            $check_lots->bindParam(':id', $id);
+                                                            $check_lots->execute();
+                                                            $chick_lots = $check_lots->fetchAll();
+                                                            foreach($chick_lots as $lot) {
+                                                        ?>
+                                                            <option value="<?= $lot['dcd_id']; ?>">
+                                                                รหัสล็อต <?= $lot['dcd_id']; ?> (<?= $lot['dcd_quan']; ?> ตัว)
+                                                            </option>
+                                                        <?php 
+                                                            }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-4 mb-2"></div>
+                                                <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่ออาหาร</label>
                                                     <!-- <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required > -->
-                                                    <select class="form-control" name="name" style="border-radius: 3rem;">
-                                                        <option selected >กรุณาเลือกอาหาร....</option>
+                                                    <select class="form-control" name="name" style="border-radius: 3rem;" required>
+                                                        <option selected disabled>กรุณาเลือกอาหาร....</option>
                                                         <?php
                                                             $id = $_SESSION['agc_id'];
                                                             $check_agc = $db->prepare("SELECT `df_name` FROM `data_food` WHERE `agc_id` = '$id'");
                                                             $check_agc->execute();
                                                             $agc_datas = $check_agc->fetchAll();
-                                                            foreach($agc_datas as $agc_data)  {
+                                                            foreach($agc_datas as $agc_data) {
                                                         ?>
                                                             <option value="<?=$agc_data['df_name']; ?>"><?=$agc_data['df_name']; ?></option>
                                                         <?php 

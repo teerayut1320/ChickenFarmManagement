@@ -10,15 +10,30 @@
     if (isset($_POST['submit'])) {
         $id = $_POST['id'];
         $date = $_POST['date'];
+        $chick_lot = $_POST['chick_lot'];
         $quan = $_POST['quan'];
         $weigth = $_POST['weigth'];
         $priceKg = $_POST['priceKg'];
         $total = $weigth*$priceKg;
     }
     try {
-        $sql = $db->prepare("UPDATE `data_sale` SET `sale_date`='$date',`sale_quan`='$quan',`sale_weigth`='$weigth',
-                                                     `sale_priceKg`='$priceKg',`sale_total`='$total'
-                             WHERE `sale_id`='$id'");
+        $sql = $db->prepare("UPDATE `data_sale` SET 
+            `sale_date` = :date,
+            `dcd_id` = :dcd_id,
+            `sale_quan` = :quan,
+            `sale_weigth` = :weigth,
+            `sale_priceKg` = :priceKg,
+            `sale_total` = :total
+            WHERE `sale_id` = :id");
+        
+        $sql->bindParam(':date', $date);
+        $sql->bindParam(':dcd_id', $chick_lot);
+        $sql->bindParam(':quan', $quan);
+        $sql->bindParam(':weigth', $weigth);
+        $sql->bindParam(':priceKg', $priceKg);
+        $sql->bindParam(':total', $total);
+        $sql->bindParam(':id', $id);
+        
         $sql->execute();
 
 

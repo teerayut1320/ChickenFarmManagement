@@ -46,6 +46,7 @@
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr align="center">
+                                            <th>รหัสล็อตไก่</th>
                                             <th>วันที่ทำการขาย</th>
                                             <th>จำนวนรวม(ตัว)</th>
                                             <th>น้ำหนักรวม(กิโลกรัม)</th>
@@ -68,6 +69,7 @@
                                                 foreach($sales as $sale)  {
                                         ?>
                                         <tr >
+                                            <td align="center"><?= $sale['dcd_id'];?></td>
                                             <td><?= $sale['sale_date'];?></td>
                                             <td align="center"><?= $sale['sale_quan'];?></td>
                                             <td align="center"><?= $sale['sale_weigth'];?></td>

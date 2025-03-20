@@ -46,6 +46,7 @@
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr align="center">
+                                            <th>รหัสล็อตไก่</th>
                                             <th>วันที่ให้อาหาร</th>
                                             <th>ชื่ออาหาร</th>
                                             <th>ปริมาณอาหาร(กิโลกรัม)</th>
@@ -62,7 +63,7 @@
                                             // $agc_id = $check_id->fetch(PDO::FETCH_ASSOC);
                                             // extract($agc_id);
 
-                                            $check_agc = $db->prepare("SELECT * FROM `data_feeding` WHERE `agc_id`='$id'");
+                                            $check_agc = $db->prepare("SELECT * FROM `data_feeding`WHERE `agc_id`='$id'");
                                             $check_agc->execute();
                                             $agc_datas = $check_agc->fetchAll();
 
@@ -72,6 +73,15 @@
                                                 foreach($agc_datas as $agc_data)  {
                                         ?>
                                         <tr >
+                                            <td align="center">
+                                                <?php
+                                                    if ($agc_data['dcd_id']) {
+                                                        echo "ล็อตที่ " . $agc_data['dcd_id'];
+                                                    } else {
+                                                        echo "-";
+                                                    }
+                                                ?>
+                                            </td>
                                             <td><?= $agc_data['feed_date'];?></td>
                                             <td align="center"><?= $agc_data['feed_name'];?></td>
                                             <td align="center"><?= $agc_data['feed_quan'];?></td>

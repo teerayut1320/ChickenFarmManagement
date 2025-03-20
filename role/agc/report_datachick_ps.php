@@ -83,34 +83,54 @@
                                     $end_date = $_POST['end_date'];
                                     $agc_id = $_SESSION['agc_id'];
 
-                                    $sql_quan = $db->prepare("SELECT MONTH(`dcd_date`) as month , SUM(`dcd_quan`) as total
-                                                                FROM `data_chick_detail` 
-                                                                WHERE MONTH(`dcd_date`) BETWEEN MONTH('$start_date') AND MONTH('$end_date') AND `agc_id` = '$agc_id'
-                                                                GROUP BY MONTH(`dcd_date`)
-                                                                ORDER BY MONTH(`dcd_date`) ASC");
-                                    $sql_quan->execute();
+                                    // เพิ่มการดึงข้อมูลไก่ตามล็อต
+                                    $sql_lot = $db->prepare("
+                                        SELECT 
+                                            dcd_id,
+                                            dcd_date,
+                                            dcd_quan,
+                                            MONTH(dcd_date) as month
+                                        FROM data_chick_detail 
+                                        WHERE dcd_date BETWEEN :start_date AND :end_date 
+                                        AND agc_id = :agc_id 
+                                        ORDER BY dcd_date ASC
+                                    ");
+                                    $sql_lot->execute([
+                                        ':start_date' => $start_date,
+                                        ':end_date' => $end_date,
+                                        ':agc_id' => $agc_id
+                                    ]);
 
-
-                                    $data_quan = array();
-                                    while ($row = $sql_quan->fetch(PDO::FETCH_ASSOC)) {
-                                        $data_quan[] = $row;
+                                    $lot_data = array();
+                                    while ($row = $sql_lot->fetch(PDO::FETCH_ASSOC)) {
+                                        $lot_data[] = $row;
                                     }
-                                    $data_quanResult = json_encode($data_quan);
-                                    // echo $data_quanResult;
+                                    $lot_dataResult = json_encode($lot_data);
 
-                                    $sql2 = $db->prepare("SELECT MONTH(`dcd_date`) as month , SUM(`dcd_price`) as total
-                                                                FROM `data_chick_detail` 
-                                                                WHERE MONTH(`dcd_date`) BETWEEN MONTH('$start_date') AND MONTH('$end_date') AND `agc_id` = '$agc_id'
-                                                                GROUP BY MONTH(`dcd_date`)
-                                                                ORDER BY MONTH(`dcd_date`) ASC");
-                                    $sql2->execute();
 
-                                    $data_price = array();
-                                    while ($row = $sql2->fetch(PDO::FETCH_ASSOC)) {
-                                        $data_price[] = $row;
+                                    // เพิ่มการดึงข้อมูลไก่ตามล็อต
+                                    $sql_price = $db->prepare("
+                                        SELECT 
+                                            dcd_id,
+                                            dcd_date,
+                                            dcd_price,
+                                            MONTH(dcd_date) as month
+                                        FROM data_chick_detail 
+                                        WHERE dcd_date BETWEEN :start_date AND :end_date 
+                                        AND agc_id = :agc_id 
+                                        ORDER BY dcd_date ASC
+                                    ");
+                                    $sql_price->execute([
+                                        ':start_date' => $start_date,
+                                        ':end_date' => $end_date,
+                                        ':agc_id' => $agc_id
+                                    ]);
+
+                                    $lot_dataPrice = array();
+                                    while ($row = $sql_price->fetch(PDO::FETCH_ASSOC)) {
+                                        $lot_dataPrice[] = $row;
                                     }
-                                    $data_priceResult = json_encode($data_price);
-                                    // echo $data_priceResult;
+                                    $lot_dataPriceResult = json_encode($lot_dataPrice);
                                 }
 
                             ?>
@@ -128,25 +148,79 @@
                                 </h5>
                             </div>
                             <div class="row">
-                                <div class="col-xl-6 col-lg-7">
+                                <div class="col-xl-12 col-lg-12">
                                     <div class="card shadow mb-4">
-                                        <div class="card-header py-3">
-                                            <h6 class="m-0 font-weight-bold ">
-                                                สรุปยอดจำนวนรับไก่เข้าฟาร์มทั้งหมด</h6>
+                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                            <h6 class="m-0 font-weight-bold">สรุปยอดปริมาณไก่ตามล็อต</h6>
+                                            <div class="d-flex align-items-center">
+                                                <label for="lotSelect" class="mr-2">เลือกล็อต:</label>
+                                                <select id="lotSelect" class="form-control" style="width: 200px; border-radius: 30px;">
+                                                    <option value="all">ทั้งหมด</option>
+                                                    <?php
+                                                    if (isset($_POST['submit'])) {
+                                                        $sql_lots = $db->prepare("
+                                                            SELECT DISTINCT dcd_id 
+                                                            FROM data_chick_detail 
+                                                            WHERE dcd_date BETWEEN :start_date AND :end_date 
+                                                            AND agc_id = :agc_id 
+                                                            ORDER BY dcd_id ASC
+                                                        ");
+                                                        $sql_lots->execute([
+                                                            ':start_date' => $start_date,
+                                                            ':end_date' => $end_date,
+                                                            ':agc_id' => $agc_id
+                                                        ]);
+                                                        while ($lot = $sql_lots->fetch(PDO::FETCH_ASSOC)) {
+                                                            echo "<option value='{$lot['dcd_id']}'>ล็อต {$lot['dcd_id']}</option>";
+                                                        }
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
+                                            <div class="chart-bar">
+                                                <canvas id="chickLotChart"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-xl-6 col-lg-7">
+                            </div>
+                            <div class="row">
+                                <div class="col-xl-12 col-lg-12">
                                     <div class="card shadow mb-4">
-                                        <div class="card-header py-3">
-                                            <h6 class="m-0 font-weight-bold ">
-                                                สรุปยอดการจ่ายค่าไก่ที่รับเข้าทั้งหมด</h6>
+                                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                            <h6 class="m-0 font-weight-bold">สรุปยอดการจ่ายค่าไก่ที่รับเข้าตามล็อต</h6>
+                                            <div class="d-flex align-items-center">
+                                                <label for="lotSelectPrice" class="mr-2">เลือกล็อต:</label>
+                                                <select id="lotSelectPrice" class="form-control" style="width: 200px; border-radius: 30px;">
+                                                    <option value="all">ทั้งหมด</option>
+                                                    <?php
+                                                    if (isset($_POST['submit'])) {
+                                                        $sql_lots = $db->prepare("
+                                                            SELECT DISTINCT dcd_id 
+                                                            FROM data_chick_detail 
+                                                            WHERE dcd_date BETWEEN :start_date AND :end_date 
+                                                            AND agc_id = :agc_id 
+                                                            ORDER BY dcd_id ASC
+                                                        ");
+                                                        $sql_lots->execute([
+                                                            ':start_date' => $start_date,
+                                                            ':end_date' => $end_date,
+                                                            ':agc_id' => $agc_id
+                                                        ]);
+                                                        while ($lot = $sql_lots->fetch(PDO::FETCH_ASSOC)) {
+                                                            echo "<option value='{$lot['dcd_id']}'>ล็อต {$lot['dcd_id']}</option>";
+                                                        }
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart1"></canvas> </div>
+                                            <div class="chart-bar">
+                                                <canvas id="chickPriceChart"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -194,240 +268,200 @@
 
     <script>
 
-        const data_quanResult = <?php echo $data_quanResult; ?>;
-        var data_quan = []; 
-        var data_date = [];
-        var data_date_unique = [];
-        data_quanResult.forEach(item => {
-            switch(item.month){ 
-                case '1':
-                    data_quan.push(item.total);
-                    break;
-                case '2':
-                    data_quan.push(item.total);
-                    break;              
-                case '3':
-                    data_quan.push(item.total);
-                    break;
-                case '4':
-                    data_quan.push(item.total);
-                    break;              
-                case '5':
-                    data_quan.push(item.total);
-                    break;
-                case '6':
-                    data_quan.push(item.total);
-                    break;
-                case '7':
-                    data_quan.push(item.total);
-                    break;
-                case '8':
-                    data_quan.push(item.total);
-                    break;  
-                case '9':
-                    data_quan.push(item.total);
-                    break;
-                case '10':
-                    data_quan.push(item.total);
-                    break;
-                case '11':
-                    data_quan.push(item.total);
-                    break;
-                case '12':
-                    data_quan.push(item.total);
-                    break;  
+        // เพิ่มตัวแปรสำหรับกราฟใหม่
+        const lot_dataResult = <?php echo $lot_dataResult ?? '[]'; ?>;
+        let chickLotChart = null;
+
+        function updateChartData(selectedLot) {
+            const filteredData = selectedLot === 'all' 
+                ? lot_dataResult 
+                : lot_dataResult.filter(item => item.dcd_id === selectedLot);
+
+            const monthlyData = {};
+            const thaiMonths = {
+                1: 'มกราคม', 2: 'กุมภาพันธ์', 3: 'มีนาคม', 4: 'เมษายน',
+                5: 'พฤษภาคม', 6: 'มิถุนายน', 7: 'กรกฎาคม', 8: 'สิงหาคม',
+                9: 'กันยายน', 10: 'ตุลาคม', 11: 'พฤศจิกายน', 12: 'ธันวาคม'
+            };
+
+            filteredData.forEach(item => {
+                const month = parseInt(item.month);
+                if (!monthlyData[month]) {
+                    monthlyData[month] = 0;
+                }
+                monthlyData[month] += parseFloat(item.dcd_quan);
+            });
+
+            const labels = Object.keys(monthlyData).map(month => thaiMonths[month]);
+            const data = Object.values(monthlyData);
+
+            if (chickLotChart) {
+                chickLotChart.destroy();
             }
-            switch(item.month){ 
-                case '1':
-                    data_date.push("มกราคม");
-                    break;      
-                case '2':
-                    data_date.push("กุมภาพันธ์");
-                    break;      
-                case '3':
-                    data_date.push("มีนาคม");
-                    break;
-                case '4':
-                    data_date.push("เมษายน");
-                    break;  
-                case '5':
-                    data_date.push("พฤษภาคม");
-                    break;  
-                case '6':
-                    data_date.push("มิถุนายน");
-                    break;  
-                case '7':
-                    data_date.push("กรกฎาคม");
-                    break;  
-                case '8':
-                    data_date.push("สิงหาคม");
-                    break;  
-                case '9':
-                    data_date.push("กันยายน");
-                    break;      
-                case '10':
-                    data_date.push("ตุลาคม");
-                    break;    
-                case '11':
-                    data_date.push("พฤศจิกายน");
-                    break;      
-                case '12':
-                    data_date.push("ธันวาคม");
-                    break;      
-            }
-        });
-        for (let i = 0; i < data_date.length; i++) {
-            if (data_date_unique.indexOf(data_date[i]) < 0) {
-                data_date_unique.push(data_date[i]);
-            }   
+
+            const colorPalette = [
+                '#FF6B6B', // แดงสด
+                '#4ECDC4', // เขียวมิ้นท์
+                '#45B7D1', // ฟ้าอ่อน
+                '#96CEB4', // เขียวพาสเทล
+                '#FFEEAD', // เหลืองอ่อน
+                '#D4A5A5', // ชมพูอมน้ำตาล
+                '#9B5DE5', // ม่วง
+                '#F15BB5', // ชมพูเข้ม
+                '#00BBF9', // ฟ้าสด
+                '#00F5D4', // เขียวเทอร์ควอยซ์
+                '#FEE440', // เหลืองสด
+                '#FF85A1'  // ชมพูอ่อน
+            ];
+
+            const ctx = document.getElementById("chickLotChart");
+            chickLotChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: selectedLot === 'all' ? "จำนวนไก่ทั้งหมด" : `จำนวนไก่ล็อต ${selectedLot}`,
+                        data: data,
+                        backgroundColor: colorPalette,
+                        borderColor: colorPalette,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + ' ตัว';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + 
+                                           context.parsed.y.toLocaleString() + ' ตัว';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
 
-        var ctx = document.getElementById("myBarChart");    
-        var myBarChart = new Chart(ctx, {   
-            type: 'bar',
-            data: { 
-                labels: data_date_unique,
-                datasets: [{
-                    label: "ปริมาณไก่",
-                    data: data_quan,
-                    backgroundColor: ["#c33e22"],
-                    borderColor: ["#c33e22"], 
-                    pointRadius: 5,
-                    pointBackgroundColor: ["#c33e22"],
-                    pointBorderColor: ["#c33e22"],
-                    pointHoverRadius: 5,
-                }],
-            },  
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }   
-                },
-                legend: {
-                    display: true
-                }       
-            }
-        }); 
-   
-
-
-        const data_priceResult = <?php echo $data_priceResult; ?>;  
-        var data_price = []; 
-        var data_date_price = [];
-        var data_date_price_unique = [];
-            data_priceResult.forEach(item => {
-            switch(item.month){ 
-                case '1':
-                    data_price.push(item.total);
-                    break;
-                case '2':
-                    data_price.push(item.total);
-                    break;
-                case '3':
-                    data_price.push(item.total);
-                    break;
-                case '4':
-                    data_price.push(item.total);
-                    break;
-                case '5':
-                    data_price.push(item.total);
-                    break;
-                case '6':
-                    data_price.push(item.total);
-                    break;
-                case '7':
-                    data_price.push(item.total);
-                    break;
-                case '8':
-                    data_price.push(item.total);
-                    break;
-                case '9':
-                    data_price.push(item.total);
-                    break;
-                case '10':
-                    data_price.push(item.total);
-                    break;
-                case '11':
-                    data_price.push(item.total);
-                    break;
-                case '12':
-                    data_price.push(item.total);
-                    break;
-            }
-            switch(item.month){ 
-                case '1':
-                    data_date_price.push("มกราคม");
-                    break;
-                case '2':
-                    data_date_price.push("กุมภาพันธ์");
-                    break;
-                case '3':
-                    data_date_price.push("มีนาคม");
-                    break;
-                case '4':
-                    data_date_price.push("เมษายน");
-                    break;
-                case '5':
-                    data_date_price.push("พฤษภาคม");
-                    break;
-                case '6':
-                    data_date_price.push("มิถุนายน");
-                    break;
-                case '7':
-                    data_date_price.push("กรกฎาคม");
-                    break;
-                case '8':
-                    data_date_price.push("สิงหาคม");
-                    break;
-                case '9':
-                    data_date_price.push("กันยายน");
-                    break;
-                    case '10':
-                    data_date_price.push("ตุลาคม");
-                    break;
-                case '11':
-                    data_date_price.push("พฤศจิกายน");
-                    break;
-                case '12':
-                    data_date_price.push("ธันวาคม");
-                    break;
-            }         
+        // เพิ่ม Event Listener สำหรับ select
+        document.getElementById('lotSelect').addEventListener('change', function(e) {
+            updateChartData(e.target.value);
         });
-        for (let i = 0; i < data_date_price.length; i++) {
-            if (data_date_price_unique.indexOf(data_date_price[i]) < 0) {
-                data_date_price_unique.push(data_date_price[i]);
-            }   
-        }   
-        var ctx = document.getElementById("myBarChart1");    
-        var myBarChart1 = new Chart(ctx, {   
-            type: 'bar',
-            data: { 
-                labels: data_date_price_unique,
-                datasets: [{    
-                    label: "ค่าใช้จ่าย",
-                    data: data_price,
-                    backgroundColor: ["#2aa251"],
-                    borderColor: ["#2aa251"], 
-                    pointRadius: 5,
-                    pointBackgroundColor: ["#2aa251"],          
-                    pointBorderColor: ["#2aa251"],
-                    pointHoverRadius: 5,
-                }],
-            },  
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }   
-                },
-                legend: {
-                    display: true
-                }                   
+
+        // สร้างกราฟครั้งแรกแสดงข้อมูลทั้งหมด
+        updateChartData('all');
+
+        // เพิ่มตัวแปรสำหรับกราฟใหม่
+        const lot_dataPriceResult = <?php echo $lot_dataPriceResult ?? '[]'; ?>;
+        let chickPriceChart = null;
+
+        // เพิ่มฟังก์ชันสำหรับอัพเดทกราฟราคา
+        function updatePriceChartData(selectedLot) {
+            const filteredData = selectedLot === 'all' 
+                ? lot_dataPriceResult 
+                : lot_dataPriceResult.filter(item => item.dcd_id === selectedLot);
+
+            const monthlyData = {};
+            const thaiMonths = {
+                1: 'มกราคม', 2: 'กุมภาพันธ์', 3: 'มีนาคม', 4: 'เมษายน',
+                5: 'พฤษภาคม', 6: 'มิถุนายน', 7: 'กรกฎาคม', 8: 'สิงหาคม',
+                9: 'กันยายน', 10: 'ตุลาคม', 11: 'พฤศจิกายน', 12: 'ธันวาคม'
+            };
+
+            const colorPalette = [
+                '#FF9F40', // ส้มสด
+                '#32CD32', // เขียวสด
+                '#FF69B4', // ชมพูอ่อน
+                '#4169E1', // น้ำเงินรอยัล
+                '#FFB6C1',
+                '#FF6384', // ชมพูเข้ม
+                '#36A2EB', // ฟ้าสด
+                '#4BC0C0', // เขียวมิ้นท์
+                '#FFCD56', // เหลืองทอง
+                '#9966FF', // ม่วงอ่อน // ชมพูพาสเทล
+                '#20B2AA', // เขียวฟ้าอ่อน
+                '#BA55D3'  // ม่วงกลาง
+];
+
+            filteredData.forEach(item => {
+                const month = parseInt(item.month);
+                if (!monthlyData[month]) {
+                    monthlyData[month] = 0;
+                }
+                monthlyData[month] += parseFloat(item.dcd_price);
+            });
+
+            const labels = Object.keys(monthlyData).map(month => thaiMonths[month]);
+            const data = Object.values(monthlyData);
+
+            if (chickPriceChart) {
+                chickPriceChart.destroy();
             }
-        });              
+
+            const ctx = document.getElementById("chickPriceChart");
+            chickPriceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: selectedLot === 'all' ? "ค่าใช้จ่ายทั้งหมด" : `ค่าใช้จ่ายล็อต ${selectedLot}`,
+                        data: data,
+                        backgroundColor: colorPalette,
+                        borderColor: colorPalette,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + ' บาท';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + 
+                                           context.parsed.y.toLocaleString() + ' บาท';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // เพิ่ม Event Listener สำหรับ select ใหม่
+        document.getElementById('lotSelectPrice').addEventListener('change', function(e) {
+            updatePriceChartData(e.target.value);
+        });
+
+        // สร้างกราฟราคาครั้งแรกแสดงข้อมูลทั้งหมด
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePriceChartData('all');
+        });
     </script>
 
 </body>

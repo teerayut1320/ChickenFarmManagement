@@ -109,9 +109,10 @@
                                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                             <thead>
                                                 <tr align="center">
+                                                    <th>รหัสล็อตไก่</th>
                                                     <th>วันที่รับเข้า</th>
                                                     <th>จำนวน (ตัว)</th>
-                                                    <th>ราคา (บาท)</th>
+                                                    <!-- <th>ราคา (บาท)</th> -->
                                                     <!-- <th>เกษตรกร</th> -->
                                                     <th></th>  
                                                 </tr>
@@ -134,9 +135,10 @@
                                                         foreach($data_chicks as $data_chick)  {
                                                 ?>
                                                 <tr align="center">
+                                                    <td><?= $data_chick['dcd_id'];?></td>
                                                     <td><?= $data_chick['dcd_date'];?></td>
                                                     <td><?= $data_chick['dcd_quan'];?></td>
-                                                    <td><?= $data_chick['dcd_price'];?></td>
+                                                    <!-- <td><?= $data_chick['dcd_price'];?></td> -->
                                                     <!-- <td><?= $agc_name;?></td> -->
                                                     <td><a href="edit_datachick.php?edit_id=<?= $data_chick['dcd_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลไก่</a></td>
                                                 </tr>

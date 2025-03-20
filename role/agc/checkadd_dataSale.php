@@ -11,14 +11,22 @@
         if (isset($_POST['submit'])) {
 
             $date = $_POST['date'];
+            $chick_lot = $_POST['chick_lot'];
             $quan = $_POST['quan'];
             $weigth = $_POST['weigth'];
             $priceKg = $_POST['priceKg'];
             $total = $weigth*$priceKg;
         
 
-            $data_sale = $db->prepare("INSERT INTO `data_sale`( `sale_date`, `sale_quan`, `sale_weigth`, `sale_priceKg`, `sale_total`, `agc_id`) 
-                                 VALUES ('$date',$quan,$weigth, $priceKg, $total ,'$agc_id')");
+            $data_sale = $db->prepare("INSERT INTO `data_sale`(`sale_date`, `sale_quan`, `sale_weigth`, `sale_priceKg`, `sale_total`, `agc_id`, `dcd_id`) 
+                                 VALUES (:date, :quan, :weigth, :priceKg, :total, :agc_id, :dcd_id)");
+            $data_sale->bindParam(':date', $date);
+            $data_sale->bindParam(':quan', $quan);
+            $data_sale->bindParam(':weigth', $weigth);
+            $data_sale->bindParam(':priceKg', $priceKg);
+            $data_sale->bindParam(':total', $total);
+            $data_sale->bindParam(':agc_id', $agc_id);
+            $data_sale->bindParam(':dcd_id', $chick_lot);
             $data_sale->execute();
 
             $data_chick = $db->prepare("SELECT `dc_quan` FROM `data_chick` WHERE `agc_id`= '$agc_id'");

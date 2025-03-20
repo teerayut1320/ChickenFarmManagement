@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการฟาร์มไก่</title>
+    <title>ลงชื่อเข้าใช้งานระบบ</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -21,27 +21,49 @@
         body {
             min-height: 100vh;
             width: 100%;
-            padding: 0 10px;
+            padding: 0;
+            margin: 0;
             background: #f0f2f5;
+            overflow-x: hidden;
         }
 
         body::before {
             content: "";
             position: fixed;
-            width: 100%;
-            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
             background: url("chicken.jpg"), #000;
             background-position: center;
             background-size: cover;
+            background-repeat: no-repeat;
             filter: brightness(0.8);
             z-index: -1;
         }
 
         .container {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+        }
+
+        .site-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            text-align: center;
+            background: rgba(0,0,0,0.3);
+            padding: 15px 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
         }
 
         .wrapper {
@@ -59,19 +81,6 @@
         .wrapper:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 30px rgba(0,0,0,0.3);
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .logo img {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-            margin-bottom: 15px;
-            filter: brightness(0) invert(1);
         }
 
         h2 {
@@ -165,7 +174,11 @@
 </head>
 <body>
     <div class="container">
+        <!-- <div class="site-title">
+            ระบบจัดการข้อมูลฟาร์มไก่ - ฟาร์มวันเลิศ
+        </div> -->
         <div class="wrapper">
+            <!-- <h2>ระบบจัดการข้อมูลฟาร์มไก่  ฟาร์มวันเลิศ</h2> -->
             <h2>ลงชื่อเข้าใช้งานระบบ</h2>
             <form action="check_login.php" method="POST">
                 <div class="input-field">
@@ -183,7 +196,7 @@
                 </button>
             </form>
             <div class="footer-text">
-                ระบบจัดการข้อมูลฟาร์มไก่ © 2024
+                ระบบจัดการข้อมูลฟาร์มไก่ © 2025
             </div>
         </div>
     </div>

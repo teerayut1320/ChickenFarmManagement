@@ -15,9 +15,19 @@
             $quan = $_POST['quan'];
             $price = $_POST['price'];
             $agc_id = $_SESSION['agc_id'];
+            $chick_lot = $_POST['chick_lot'];
         
 
-            $sql = $db->prepare("INSERT INTO `data_feeding`( `feed_date`, `feed_name`, `feed_quan`,`feed_price`,`agc_id` ) VALUES ('$date','$name',$quan, $price, '$agc_id')");
+            $sql = $db->prepare("INSERT INTO `data_feeding`(`feed_date`, `feed_name`, `feed_quan`, `feed_price`, `agc_id`, `dcd_id`) 
+                                 VALUES (:date, :name, :quan, :price, :agc_id, :dcd_id)");
+            
+            $sql->bindParam(':date', $date);
+            $sql->bindParam(':name', $name);
+            $sql->bindParam(':quan', $quan);
+            $sql->bindParam(':price', $price);
+            $sql->bindParam(':agc_id', $agc_id);
+            $sql->bindParam(':dcd_id', $chick_lot);
+            
             $sql->execute();
 
 
