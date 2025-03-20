@@ -36,11 +36,10 @@
             bottom: 0;
             width: 100vw;
             height: 100vh;
-            background: url("chicken.jpg"), #000;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("chicken.jpg");
             background-position: center;
             background-size: cover;
             background-repeat: no-repeat;
-            filter: brightness(0.8);
             z-index: -1;
         }
 
@@ -50,28 +49,36 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            padding: 20px;
         }
 
         .site-title {
-            font-size: 36px;
+            font-size: 42px;
             font-weight: 700;
             color: #fff;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             text-align: center;
-            background: rgba(0,0,0,0.3);
-            padding: 15px 30px;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.4);
+            padding: 20px 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .site-title:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
         .wrapper {
             width: 420px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(15px);
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 40px 30px;
             box-shadow: 0 15px 25px rgba(0,0,0,0.2);
             transform: translateY(0);
@@ -101,9 +108,9 @@
         .input-field input {
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
             padding: 0 45px;
             font-size: 16px;
             color: #fff;
@@ -113,6 +120,11 @@
         .input-field input:focus {
             background: rgba(255, 255, 255, 0.25);
             border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(255,255,255,0.1);
+        }
+
+        .input-field input::placeholder {
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .input-field i {
@@ -121,27 +133,12 @@
             top: 50%;
             transform: translateY(-50%);
             color: rgba(255, 255, 255, 0.8);
-            font-size: 18px;
-        }
-
-        .input-field label {
-            position: absolute;
-            top: 50%;
-            left: 45px;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.8);
-            pointer-events: none;
+            font-size: 20px;
             transition: all 0.3s ease;
         }
 
-        .input-field input:focus ~ label,
-        .input-field input:valid ~ label {
-            top: 0;
-            left: 15px;
-            font-size: 12px;
-            padding: 0 5px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
+        .input-field input:focus ~ i {
+            color: #fff;
         }
 
         button {
@@ -149,13 +146,13 @@
             height: 50px;
             background: rgba(255, 255, 255, 0.9);
             border: none;
-            border-radius: 10px;
+            border-radius: 15px;
             color: #333;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 10px;
+            margin-top: 20px;
         }
 
         button:hover {
@@ -167,29 +164,38 @@
         .footer-text {
             text-align: center;
             margin-top: 25px;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.9);
             font-size: 14px;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 480px) {
+            .site-title {
+                font-size: 32px;
+                padding: 15px 25px;
+            }
+
+            .wrapper {
+                width: 100%;
+                margin: 0 15px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- <div class="site-title">
-            ระบบจัดการข้อมูลฟาร์มไก่ - ฟาร์มวันเลิศ
-        </div> -->
+
         <div class="wrapper">
-            <!-- <h2>ระบบจัดการข้อมูลฟาร์มไก่  ฟาร์มวันเลิศ</h2> -->
             <h2>ลงชื่อเข้าใช้งานระบบ</h2>
             <form action="check_login.php" method="POST">
-                <div class="input-field">
+                <div class="input-field mb-5">
                     <i class="fas fa-user"></i>
-                    <input type="text" name="username" required>
-                    <label>ชื่อผู้ใช้งาน</label>
+                    <input type="text" name="username" placeholder="ชื่อผู้ใช้งาน" required>
                 </div>
                 <div class="input-field">
                     <i class="fas fa-lock"></i>
-                    <input type="password" name="password" required>
-                    <label>รหัสผ่าน</label>
+                    <input type="password" name="password" placeholder="รหัสผ่าน" required>
                 </div>
                 <button type="submit" name="submit">
                     เข้าสู่ระบบ
