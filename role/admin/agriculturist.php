@@ -63,7 +63,8 @@
                                             // $agc_id = $check_id->fetch(PDO::FETCH_ASSOC);
                                             // extract($agc_id);
 
-                                            $check_agc = $db->prepare("SELECT * FROM `agriculturist`INNER JOIN `user_login` ON user_login.agc_id = agriculturist.agc_id");
+                                            $check_agc = $db->prepare("SELECT * FROM `agriculturist`INNER JOIN `user_login` ON user_login.agc_id = agriculturist.agc_id
+                                                                        WHERE user_login.us_role = '2'");
                                             $check_agc->execute();
                                             $agc_datas = $check_agc->fetchAll();
 
