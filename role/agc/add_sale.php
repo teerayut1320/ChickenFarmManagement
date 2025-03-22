@@ -66,7 +66,12 @@
                                                         <option selected disabled>กรุณาเลือกล็อตไก่....</option>
                                                         <?php
                                                             $id = $_SESSION['agc_id'];
-                                                            $check_lots = $db->prepare("SELECT `dcd_id`, `dcd_date`, `dcd_quan` FROM `data_chick_detail` WHERE `agc_id` = :id ORDER BY `dcd_id` DESC");
+                                                            $check_lots = $db->prepare("
+                                                                SELECT `dcd_id`, `dcd_date`, `dcd_quan` 
+                                                                FROM `data_chick_detail` 
+                                                                WHERE `agc_id` = :id AND `dcd_quan` > 0 
+                                                                ORDER BY `dcd_id` DESC
+                                                            ");
                                                             $check_lots->bindParam(':id', $id);
                                                             $check_lots->execute();
                                                             $chick_lots = $check_lots->fetchAll();

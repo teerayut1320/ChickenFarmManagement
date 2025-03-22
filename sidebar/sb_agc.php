@@ -49,6 +49,12 @@
     </li>
 
     <li class="nav-item">
+        <a class="nav-link" href="inex_lot.php">
+            <i class="fas fa-money-bill-alt"></i>
+            <span style="font-size: 1rem;">รายรับ-รายจ่าย รายล็อต</span></a>
+    </li>
+
+    <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
             aria-expanded="true" aria-controls="collapseUtilities">
             <i class="fas fa-clipboard-list"></i>

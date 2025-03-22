@@ -9,45 +9,56 @@
     try {
         
         if (isset($_POST['submit'])) {
-
             $date = $_POST['date'];
             $chick_lot = $_POST['chick_lot'];
             $quan = $_POST['quan'];
             $weigth = $_POST['weigth'];
             $priceKg = $_POST['priceKg'];
             $total = $weigth*$priceKg;
-        
 
-            $data_sale = $db->prepare("INSERT INTO `data_sale`(`sale_date`, `sale_quan`, `sale_weigth`, `sale_priceKg`, `sale_total`, `agc_id`, `dcd_id`) 
-                                 VALUES (:date, :quan, :weigth, :priceKg, :total, :agc_id, :dcd_id)");
-            $data_sale->bindParam(':date', $date);
-            $data_sale->bindParam(':quan', $quan);
-            $data_sale->bindParam(':weigth', $weigth);
-            $data_sale->bindParam(':priceKg', $priceKg);
-            $data_sale->bindParam(':total', $total);
-            $data_sale->bindParam(':agc_id', $agc_id);
-            $data_sale->bindParam(':dcd_id', $chick_lot);
-            $data_sale->execute();
+            // เช็คจำนวนไก่คงเหลือในล็อต
+            $check_quan = $db->prepare("SELECT dcd_quan FROM data_chick_detail WHERE dcd_id = :lot_id AND agc_id = :agc_id");
+            $check_quan->bindParam(':lot_id', $chick_lot);
+            $check_quan->bindParam(':agc_id', $agc_id);
+            $check_quan->execute();
+            $current_quan = $check_quan->fetchColumn();
 
-            $data_chick = $db->prepare("SELECT `dc_quan` FROM `data_chick` WHERE `agc_id`= '$agc_id'");
-            $data_chick->execute();
-            $dc_data = $data_chick->fetch(PDO::FETCH_ASSOC);
-            extract($dc_data);
+            // ตรวจสอบว่าจำนวนไก่ที่จะขายต้องไม่เกินจำนวนที่มีอยู่
+            if ($quan > $current_quan) {
+                $_SESSION['error'] = "ไม่สามารถขายไก่ได้ เนื่องจากจำนวนไก่ในล็อตมีไม่เพียงพอ";
+                header("location: add_sale.php");
+                exit();
+            }
 
-            $dc_quanNew = $dc_quan - $quan;
+            // เริ่ม Transaction
+            $db->beginTransaction();
 
-            $data_chick1 = $db->prepare("UPDATE `data_chick` SET `dc_quan`='$dc_quanNew' WHERE `agc_id`='$agc_id'");
-            $data_chick1->execute();
+            // เพิ่มข้อมูลการขาย
+            $insert_sale = $db->prepare("INSERT INTO data_sale(agc_id, dcd_id, sale_date, sale_quan, sale_weigth, sale_priceKg, sale_total) 
+                                       VALUES(:agc_id, :dcd_id, :sale_date, :sale_quan, :sale_weigth, :sale_priceKg, :sale_total)");
+            $insert_sale->bindParam(':agc_id', $agc_id);
+            $insert_sale->bindParam(':dcd_id', $chick_lot);
+            $insert_sale->bindParam(':sale_date', $date);
+            $insert_sale->bindParam(':sale_quan', $quan);
+            $insert_sale->bindParam(':sale_weigth', $weigth);
+            $insert_sale->bindParam(':sale_priceKg', $priceKg);
+            $insert_sale->bindParam(':sale_total', $total);
+            $insert_sale->execute();
 
-            $data_inex = $db->prepare("INSERT INTO `data_inex`(`inex_date`, `inex_type`, `inex_name`, `inex_price`, `agc_id`) VALUES ('$date','รายรับ','ค่าขายไก่', $total, '$agc_id')");
-            $data_inex->execute();
+            // อัพเดทจำนวนไก่คงเหลือในล็อต
+            $new_quan = $current_quan - $quan;
+            $update_quan = $db->prepare("UPDATE data_chick_detail 
+                                       SET dcd_quan = :new_quan 
+                                       WHERE dcd_id = :lot_id AND agc_id = :agc_id");
+            $update_quan->bindParam(':new_quan', $new_quan);
+            $update_quan->bindParam(':lot_id', $chick_lot);
+            $update_quan->bindParam(':agc_id', $agc_id);
+            $update_quan->execute();
 
-            
+            // Commit Transaction
+            $db->commit();
 
-        }
-
-        if ($data_sale && $data_chick && $data_chick1 && $data_inex) {
-            $_SESSION['success'] = "เพิ่มข้อมูลเรียบร้อยแล้ว";
+            $_SESSION['success'] = "เพิ่มข้อมูลการขายสำเร็จ";
             echo "<script>
                 $(document).ready(function() {
                     Swal.fire({
@@ -61,11 +72,14 @@
             </script>";
             header("refresh:1; url=data_sale.php");
         } else {
-            $_SESSION['error'] = "เพิ่มข้อมูลเรียบร้อยไม่สำเร็จ";
-            header("location:data_sale.php");
+            $_SESSION['error'] = "เกิดข้อผิดพลาด";
+            header("location: add_sale.php");
         }
         
     } catch(PDOException $e) {
-        echo $e->getMessage();
+        // หากเกิดข้อผิดพลาด ให้ Rollback
+        $db->rollBack();
+        $_SESSION['error'] = "เกิดข้อผิดพลาด: " . $e->getMessage();
+        header("location: add_sale.php");
     }
 ?>
