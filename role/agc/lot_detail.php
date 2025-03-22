@@ -61,7 +61,7 @@
                     ?>
 
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">รายละเอียดล็อตไก่ #<?= $lot_id ?></h1>
+                        <h1 class="h3 mb-0 text-gray-800">รายละเอียดล็อตไก่ #รหัสล็อต <?= $lot_id ?></h1>
                         <a href="inex_lot.php" class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left"></i> กลับ
                         </a>

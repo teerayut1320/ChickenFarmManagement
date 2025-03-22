@@ -27,6 +27,9 @@
 
     <!-- Custom styles for this page -->
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
 
@@ -77,27 +80,80 @@
                                 </div>
                             </form>
                             <?php
+                                // ตัวแปรสำหรับเก็บข้อมูล
+                                $chick_quan_data = [];
+                                $chick_price_data = [];
+                                $farm_names = [];
+                                $date_filter = "";
+
                                 if (isset($_POST['submit'])) {
                                     $start_date = $_POST['start_date'];
                                     $end_date = $_POST['end_date'];
-
-
-
-
-
-
-
-
-
-
+                                    $date_filter = "WHERE dcd_date BETWEEN '$start_date' AND '$end_date'";
                                 }
 
+                                // ดึงข้อมูลจำนวนไก่รายฟาร์ม
+                                $sql_quantity = "
+                                    SELECT a.agc_Fname as farm_name, SUM(dcd.dcd_quan) as total_quantity
+                                    FROM data_chick_detail dcd
+                                    JOIN agriculturist a ON dcd.agc_id = a.agc_id
+                                    $date_filter
+                                    GROUP BY a.agc_id, a.agc_Fname
+                                    ORDER BY total_quantity DESC
+                                    LIMIT 10
+                                ";
+
+                                // ดึงข้อมูลค่าไก่รายฟาร์ม
+                                $sql_price = "
+                                    SELECT a.agc_Fname as farm_name, SUM(dcd.dcd_price) as total_price
+                                    FROM data_chick_detail dcd
+                                    JOIN agriculturist a ON dcd.agc_id = a.agc_id
+                                    $date_filter
+                                    GROUP BY a.agc_id, a.agc_Fname
+                                    ORDER BY total_price DESC
+                                    LIMIT 10
+                                ";
+
+                                try {
+                                    // ดึงข้อมูลจำนวนไก่
+                                    $stmt_quantity = $db->prepare($sql_quantity);
+                                    $stmt_quantity->execute();
+                                    $quantity_results = $stmt_quantity->fetchAll(PDO::FETCH_ASSOC);
+
+                                    $quantity_farm_names = [];
+                                    $quantity_values = [];
+                                    
+                                    foreach ($quantity_results as $row) {
+                                        $quantity_farm_names[] = $row['farm_name'];
+                                        $quantity_values[] = $row['total_quantity'];
+                                    }
+                                    
+                                    // ดึงข้อมูลค่าไก่
+                                    $stmt_price = $db->prepare($sql_price);
+                                    $stmt_price->execute();
+                                    $price_results = $stmt_price->fetchAll(PDO::FETCH_ASSOC);
+
+                                    $price_farm_names = [];
+                                    $price_values = [];
+                                    
+                                    foreach ($price_results as $row) {
+                                        $price_farm_names[] = $row['farm_name'];
+                                        $price_values[] = $row['total_price'];
+                                    }
+                                    
+                                    // แปลงข้อมูลเป็น JSON สำหรับใช้ใน JavaScript
+                                    $quantity_farm_names_json = json_encode($quantity_farm_names);
+                                    $quantity_values_json = json_encode($quantity_values);
+                                    $price_farm_names_json = json_encode($price_farm_names);
+                                    $price_values_json = json_encode($price_values);
+                                    
+                                } catch (PDOException $e) {
+                                    echo "เกิดข้อผิดพลาด: " . $e->getMessage();
+                                }
                             ?>
                             <div class="md-2">
                                 <h5 class="m-0 font-weight-bold text-primary text-center mb-2">ช่วงเวลาที่กำหนด
                                     <?php
-                                        // echo "start_date".$start_date;
-                                        // echo "end_date".$end_date;
                                         if (empty($start_date) and empty($end_date)) {
                                             echo "ยังไม่กำหนดช่วงเวลา";
                                         }else {
@@ -111,10 +167,10 @@
                                     <div class="card shadow mb-4">
                                         <div class="card-header py-3">
                                             <h6 class="m-0 font-weight-bold text-chick1">
-                                                สรุปยอดจำนวนรับไปเข้าฟาร์มทั้งหมด</h6>
+                                                สรุปยอดจำนวนไก่คงเหลือเข้าฟาร์มทั้งหมด</h6>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
+                                            <div class="chart-bar"> <canvas id="chickQuantityChart"></canvas> </div>
                                         </div>
                                     </div>
                                 </div>
@@ -125,7 +181,7 @@
                                                 สรุปยอดการจ่ายค่าไก่ที่รับเข้าทั้งหมด</h6>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
+                                            <div class="chart-bar"> <canvas id="chickPriceChart"></canvas> </div>
                                         </div>
                                     </div>
                                 </div>
@@ -170,8 +226,106 @@
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>
 
+    <!-- สร้างกราฟ -->
+    <script>
+        // ตั้งค่าสีสำหรับกราฟ
+        const colors = [
+            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', 
+            '#5a5c69', '#6610f2', '#fd7e14', '#20c9a6', '#858796'
+        ];
 
+        // กราฟแสดงจำนวนไก่
+        var quantityFarmNames = <?php echo $quantity_farm_names_json ?? '[]'; ?>;
+        var quantityValues = <?php echo $quantity_values_json ?? '[]'; ?>;
+        
+        var ctxQuantity = document.getElementById('chickQuantityChart').getContext('2d');
+        var chickQuantityChart = new Chart(ctxQuantity, {
+            type: 'bar',
+            data: {
+                labels: quantityFarmNames,
+                datasets: [{
+                    label: 'จำนวนไก่ (ตัว)',
+                    data: quantityValues,
+                    backgroundColor: colors,
+                    borderColor: colors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('th-TH') + ' ตัว';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + 
+                                    context.parsed.y.toLocaleString('th-TH') + ' ตัว';
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
+        // กราฟแสดงค่าไก่
+        var priceFarmNames = <?php echo $price_farm_names_json ?? '[]'; ?>;
+        var priceValues = <?php echo $price_values_json ?? '[]'; ?>;
+        
+        var ctxPrice = document.getElementById('chickPriceChart').getContext('2d');
+        var chickPriceChart = new Chart(ctxPrice, {
+            type: 'bar',
+            data: {
+                labels: priceFarmNames,
+                datasets: [{
+                    label: 'ค่าไก่ (บาท)',
+                    data: priceValues,
+                    backgroundColor: colors,
+                    borderColor: colors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('th-TH') + ' บาท';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + 
+                                    context.parsed.y.toLocaleString('th-TH') + ' บาท';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

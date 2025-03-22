@@ -14,7 +14,7 @@
             $quan = $_POST['quan'];
             $weigth = $_POST['weigth'];
             $priceKg = $_POST['priceKg'];
-            $total = $weigth*$priceKg;
+            $total = $weigth * $priceKg;
 
             // เช็คจำนวนไก่คงเหลือในล็อต
             $check_quan = $db->prepare("SELECT dcd_quan FROM data_chick_detail WHERE dcd_id = :lot_id AND agc_id = :agc_id");
@@ -54,6 +54,14 @@
             $update_quan->bindParam(':lot_id', $chick_lot);
             $update_quan->bindParam(':agc_id', $agc_id);
             $update_quan->execute();
+
+            // เพิ่มข้อมูลรายรับในตาราง data_inex
+            $insert_inex = $db->prepare("INSERT INTO data_inex(agc_id, inex_date, inex_type, inex_name, inex_price) 
+                                        VALUES(:agc_id, :inex_date, 'รายรับ', 'ค่าขายไก่', :inex_price)");
+            $insert_inex->bindParam(':agc_id', $agc_id);
+            $insert_inex->bindParam(':inex_date', $date);
+            $insert_inex->bindParam(':inex_price', $total);
+            $insert_inex->execute();
 
             // Commit Transaction
             $db->commit();

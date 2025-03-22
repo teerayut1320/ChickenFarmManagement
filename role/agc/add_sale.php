@@ -50,6 +50,11 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
+                                        <?php if (isset($_SESSION['error'])): ?>
+                                            <div class="alert alert-danger">
+                                                <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+                                            </div>
+                                        <?php endif; ?>
                                         <form class="user" action="checkadd_dataSale.php" method="post">
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
