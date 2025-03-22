@@ -62,7 +62,7 @@
         </a>
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
-                <a class="collapse-item" href="report_datachick_ps.php">ช้อมูลไก่</a>
+                <a class="collapse-item" href="report_datachick_ps.php">ข้อมูลไก่</a>
                 <a class="collapse-item" href="report_foodchick_ps.php">ข้อมูลการให้อาหารไก่</a>
                 <a class="collapse-item" href="report_salechick_ps.php">ข้อมูลการขาย</a>
                 <a class="collapse-item" href="report_InExchick_ps.php">ข้อมูลรายรับ-รายจ่าย</a>

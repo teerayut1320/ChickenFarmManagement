@@ -27,6 +27,9 @@
 
     <!-- Custom styles for this page -->
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
 
@@ -77,31 +80,87 @@
                                 </div>
                             </form>
                             <?php
+                                // ตัวแปรสำหรับเก็บข้อมูล
+                                $food_quantity_by_month = [];
+                                $food_price_by_month = [];
+                                $date_filter = "";
+
                                 if (isset($_POST['submit'])) {
                                     $start_date = $_POST['start_date'];
                                     $end_date = $_POST['end_date'];
-
-
-
-
-
-
-
-
-
-
+                                    $date_filter = "WHERE feed_date BETWEEN '$start_date' AND '$end_date'";
+                                    
+                                    // ดึงข้อมูลปริมาณอาหารไก่รายเดือน
+                                    $sql_quantity = "
+                                        SELECT 
+                                            MONTH(feed_date) as month,
+                                            YEAR(feed_date) as year,
+                                            SUM(feed_quan) as total_quantity
+                                        FROM data_feeding
+                                        $date_filter
+                                        GROUP BY YEAR(feed_date), MONTH(feed_date)
+                                        ORDER BY YEAR(feed_date), MONTH(feed_date)
+                                    ";
+                                    
+                                    // ดึงข้อมูลค่าอาหารไก่รายเดือน
+                                    $sql_price = "
+                                        SELECT 
+                                            MONTH(feed_date) as month,
+                                            YEAR(feed_date) as year,
+                                            SUM(feed_price) as total_price
+                                        FROM data_feeding
+                                        $date_filter
+                                        GROUP BY YEAR(feed_date), MONTH(feed_date)
+                                        ORDER BY YEAR(feed_date), MONTH(feed_date)
+                                    ";
+                                    
+                                    try {
+                                        // ประมวลผลข้อมูลปริมาณอาหาร
+                                        $stmt_quantity = $db->prepare($sql_quantity);
+                                        $stmt_quantity->execute();
+                                        $quantity_results = $stmt_quantity->fetchAll(PDO::FETCH_ASSOC);
+                                        
+                                        $months_quantity = [];
+                                        $quantity_values = [];
+                                        
+                                        foreach ($quantity_results as $row) {
+                                            $month_name = $monthTH[$row['month']];
+                                            $months_quantity[] = $month_name;
+                                            $quantity_values[] = $row['total_quantity'];
+                                        }
+                                        
+                                        // ประมวลผลข้อมูลค่าอาหาร
+                                        $stmt_price = $db->prepare($sql_price);
+                                        $stmt_price->execute();
+                                        $price_results = $stmt_price->fetchAll(PDO::FETCH_ASSOC);
+                                        
+                                        $months_price = [];
+                                        $price_values = [];
+                                        
+                                        foreach ($price_results as $row) {
+                                            $month_name = $monthTH[$row['month']];
+                                            $months_price[] = $month_name;
+                                            $price_values[] = $row['total_price'];
+                                        }
+                                        
+                                        // แปลงข้อมูลเป็น JSON สำหรับใช้ใน JavaScript
+                                        $months_quantity_json = json_encode($months_quantity);
+                                        $quantity_values_json = json_encode($quantity_values);
+                                        $months_price_json = json_encode($months_price);
+                                        $price_values_json = json_encode($price_values);
+                                        
+                                    } catch (PDOException $e) {
+                                        echo "เกิดข้อผิดพลาด: " . $e->getMessage();
+                                    }
                                 }
-
                             ?>
                             <div class="md-2">
                                 <h5 class="m-0 font-weight-bold text-primary text-center mb-2">ช่วงเวลาที่กำหนด
                                     <?php
-                                        // echo "start_date".$start_date;
-                                        // echo "end_date".$end_date;
                                         if (empty($start_date) and empty($end_date)) {
                                             echo "ยังไม่กำหนดช่วงเวลา";
-                                        }else {
-                                            echo  thai_date_fullmonth(strtotime($start_date))." ถึง ".thai_date_fullmonth(strtotime($end_date));
+                                        } else {
+                                            echo thai_date_fullmonth(strtotime($start_date))." ถึง ".thai_date_fullmonth(strtotime($end_date));
                                         }
                                     ?>
                                 </h5>
@@ -114,7 +173,7 @@
                                                 สรุปยอดปริมาณอาหารไก่ที่ให้ในแต่ละเดือน</h6>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
+                                            <div class="chart-bar"> <canvas id="foodQuantityChart"></canvas> </div>
                                         </div>
                                     </div>
                                 </div>
@@ -125,7 +184,7 @@
                                                 สรุปยอดการจ่ายค่าอาหารไก่ในแต่ละเดือน</h6>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
+                                            <div class="chart-bar"> <canvas id="foodPriceChart"></canvas> </div>
                                         </div>
                                     </div>
                                 </div>
@@ -169,6 +228,111 @@
 
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>
+
+    <!-- สร้างกราฟ -->
+    <script>
+        // ตั้งค่าสีสำหรับกราฟ
+        const colors = [
+            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', 
+            '#5a5c69', '#6610f2', '#fd7e14', '#20c9a6', '#858796',
+            '#5D2E8C', '#2C7873'
+        ];
+
+        // กราฟแสดงปริมาณอาหารรายเดือน
+        var monthsQuantity = <?php echo $months_quantity_json ?? '[]'; ?>;
+        var quantityValues = <?php echo $quantity_values_json ?? '[]'; ?>;
+        
+        var ctxQuantity = document.getElementById('foodQuantityChart').getContext('2d');
+        var foodQuantityChart = new Chart(ctxQuantity, {
+            type: 'bar',
+            data: {
+                labels: monthsQuantity,
+                datasets: [{
+                    label: 'ปริมาณอาหาร (กก.)',
+                    data: quantityValues,
+                    backgroundColor: '#4e73df',
+                    borderColor: '#4e73df',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('th-TH') + ' กก.';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'ปริมาณอาหาร: ' + 
+                                    context.parsed.y.toLocaleString('th-TH') + ' กก.';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // กราฟแสดงค่าอาหารรายเดือน
+        var monthsPrice = <?php echo $months_price_json ?? '[]'; ?>;
+        var priceValues = <?php echo $price_values_json ?? '[]'; ?>;
+        
+        var ctxPrice = document.getElementById('foodPriceChart').getContext('2d');
+        var foodPriceChart = new Chart(ctxPrice, {
+            type: 'bar',
+            data: {
+                labels: monthsPrice,
+                datasets: [{
+                    label: 'ค่าอาหาร (บาท)',
+                    data: priceValues,
+                    backgroundColor: '#1cc88a',
+                    borderColor: '#1cc88a',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('th-TH') + ' บาท';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'ค่าอาหาร: ' + 
+                                    context.parsed.y.toLocaleString('th-TH') + ' บาท';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+       
+    </script>
 
 </body>
 

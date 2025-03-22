@@ -14,7 +14,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>รายงานข้อมูลการขายไก่รายบุคคล</title>
+    <title>รายงานข้อมูลการขายไก่โดยภาพรวม</title>
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -27,6 +27,9 @@
 
     <!-- Custom styles for this page -->
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
 
@@ -54,7 +57,7 @@
                 <div class="container-fluid">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h3 class="m-0 font-weight-bold text-chick1 text-center">รายงานข้อมูลการขายไก่รายบุคคล</h3>
+                            <h3 class="m-0 font-weight-bold text-chick1 text-center">รายงานข้อมูลการขายไก่โดยภาพรวม</h3>
                         </div>
                         <div class="card-body">
                             <form action="" method="post">
@@ -77,31 +80,62 @@
                                 </div>
                             </form>
                             <?php
+                                // ตัวแปรสำหรับเก็บข้อมูล
+                                $sales_data = [];
+                                $date_filter = "";
+
                                 if (isset($_POST['submit'])) {
                                     $start_date = $_POST['start_date'];
                                     $end_date = $_POST['end_date'];
-
-
-
-
-
-
-
-
-
-
+                                    $date_filter = "WHERE sale_date BETWEEN '$start_date' AND '$end_date'";
+                                    
+                                    // ดึงข้อมูลยอดขายรายเดือน - จำนวนไก่
+                                    $sql_sale_quantity = "
+                                        SELECT 
+                                            MONTH(sale_date) as month,
+                                            YEAR(sale_date) as year,
+                                            SUM(sale_quan) as total_quantity,
+                                            SUM(sale_total) as total_sales
+                                        FROM data_sale
+                                        $date_filter
+                                        GROUP BY YEAR(sale_date), MONTH(sale_date)
+                                        ORDER BY YEAR(sale_date), MONTH(sale_date)
+                                    ";
+                                    
+                                    try {
+                                        // ประมวลผลข้อมูลยอดขาย
+                                        $stmt_sales = $db->prepare($sql_sale_quantity);
+                                        $stmt_sales->execute();
+                                        $sales_results = $stmt_sales->fetchAll(PDO::FETCH_ASSOC);
+                                        
+                                        $months = [];
+                                        $quantity_values = [];
+                                        $sales_values = [];
+                                        
+                                        foreach ($sales_results as $row) {
+                                            $month_name = $monthTH[$row['month']];
+                                            $months[] = $month_name;
+                                            $quantity_values[] = $row['total_quantity'];
+                                            $sales_values[] = $row['total_sales'];
+                                        }
+                                        
+                                        // แปลงข้อมูลเป็น JSON สำหรับใช้ใน JavaScript
+                                        $months_json = json_encode($months);
+                                        $quantity_values_json = json_encode($quantity_values);
+                                        $sales_values_json = json_encode($sales_values);
+                                        
+                                    } catch (PDOException $e) {
+                                        echo "เกิดข้อผิดพลาด: " . $e->getMessage();
+                                    }
                                 }
-
                             ?>
                             <div class="md-2">
                                 <h5 class="m-0 font-weight-bold text-primary text-center mb-2">ช่วงเวลาที่กำหนด
                                     <?php
-                                        // echo "start_date".$start_date;
-                                        // echo "end_date".$end_date;
                                         if (empty($start_date) and empty($end_date)) {
                                             echo "ยังไม่กำหนดช่วงเวลา";
-                                        }else {
-                                            echo  thai_date_fullmonth(strtotime($start_date))." ถึง ".thai_date_fullmonth(strtotime($end_date));
+                                        } else {
+                                            echo thai_date_fullmonth(strtotime($start_date))." ถึง ".thai_date_fullmonth(strtotime($end_date));
                                         }
                                     ?>
                                 </h5>
@@ -114,21 +148,10 @@
                                                 สรุปยอดการขายไก่ในแต่ละเดือน</h6>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
+                                            <div class="chart-bar"> <canvas id="saleChart"></canvas> </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- <div class="col-xl-6 col-lg-7">
-                                    <div class="card shadow mb-4">
-                                        <div class="card-header py-3">
-                                            <h6 class="m-0 font-weight-bold text-chick1">
-                                                สรุปยอดการจ่ายค่าไก่ที่รับเข้าทั้งหมด</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
-                                        </div>
-                                    </div>
-                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -169,6 +192,125 @@
 
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>
+
+    <!-- สร้างกราฟ -->
+    <script>
+        <?php if (isset($_POST['submit']) && !empty($months)): ?>
+        // กราฟแสดงยอดขายไก่รายเดือน
+        var months = <?php echo $months_json; ?>;
+        var quantityValues = <?php echo $quantity_values_json; ?>;
+        var salesValues = <?php echo $sales_values_json; ?>;
+        
+        var ctx = document.getElementById('saleChart').getContext('2d');
+        var saleChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'จำนวนไก่ที่ขาย (ตัว)',
+                    data: quantityValues,
+                    backgroundColor: '#4e73df',
+                    borderColor: '#4e73df',
+                    borderWidth: 1,
+                    yAxisID: 'y'
+                }, {
+                    label: 'ยอดขาย (บาท)',
+                    data: salesValues,
+                    backgroundColor: '#f6c23e',
+                    borderColor: '#f6c23e',
+                    borderWidth: 1,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'จำนวนไก่ (ตัว)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('th-TH') + ' ตัว';
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'ยอดขาย (บาท)'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('th-TH') + ' บาท';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.dataset.yAxisID === 'y') {
+                                    label += context.parsed.y.toLocaleString('th-TH') + ' ตัว';
+                                } else {
+                                    label += context.parsed.y.toLocaleString('th-TH') + ' บาท';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        <?php else: ?>
+        // กรณียังไม่กดปุ่มเรียกดูหรือไม่มีข้อมูล
+        document.addEventListener('DOMContentLoaded', function() {
+            var ctx = document.getElementById('saleChart').getContext('2d');
+            
+            // แสดงข้อความเมื่อยังไม่มีข้อมูล
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'กรุณากำหนดช่วงเวลาและกดปุ่มเรียกดู',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        <?php endif; ?>
+    </script>
 
 </body>
 
