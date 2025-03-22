@@ -27,6 +27,9 @@
 
     <!-- Custom styles for this page -->
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
 
@@ -77,31 +80,81 @@
                                 </div>
                             </form>
                             <?php
+                                // ตัวแปรสำหรับเก็บข้อมูล
+                                $months_data = [];
+                                $income_data = [];
+                                $expense_data = [];
+                                $date_filter = "";
+
                                 if (isset($_POST['submit'])) {
                                     $start_date = $_POST['start_date'];
                                     $end_date = $_POST['end_date'];
-
-
-
-
-
-
-
-
-
-
+                                    $date_filter = "WHERE inex_date BETWEEN '$start_date' AND '$end_date'";
+                                    
+                                    // ดึงข้อมูลรายรับรายจ่ายรายเดือน
+                                    $sql_inex = "
+                                        SELECT 
+                                            MONTH(inex_date) as month,
+                                            YEAR(inex_date) as year,
+                                            inex_type,
+                                            SUM(inex_price) as total_amount
+                                        FROM data_inex
+                                        $date_filter
+                                        GROUP BY YEAR(inex_date), MONTH(inex_date), inex_type
+                                        ORDER BY YEAR(inex_date), MONTH(inex_date)
+                                    ";
+                                    
+                                    try {
+                                        // ประมวลผลข้อมูลรายรับรายจ่าย
+                                        $stmt_inex = $db->prepare($sql_inex);
+                                        $stmt_inex->execute();
+                                        $inex_results = $stmt_inex->fetchAll(PDO::FETCH_ASSOC);
+                                        
+                                        // สร้าง array เก็บข้อมูลรายเดือน
+                                        $monthly_data = [];
+                                        
+                                        foreach ($inex_results as $row) {
+                                            $month_key = $row['year'] . '-' . $row['month'];
+                                            $month_name = $monthTH[$row['month']];
+                                            
+                                            if (!isset($monthly_data[$month_key])) {
+                                                $monthly_data[$month_key] = [
+                                                    'month_name' => $month_name,
+                                                    'รายรับ' => 0,
+                                                    'รายจ่าย' => 0
+                                                ];
+                                            }
+                                            
+                                            $monthly_data[$month_key][$row['inex_type']] += $row['total_amount'];
+                                        }
+                                        
+                                        // เรียงข้อมูลตามเดือน
+                                        ksort($monthly_data);
+                                        
+                                        // แยกข้อมูลสำหรับใช้ในกราฟ
+                                        foreach ($monthly_data as $data) {
+                                            $months_data[] = $data['month_name'];
+                                            $income_data[] = $data['รายรับ'];
+                                            $expense_data[] = $data['รายจ่าย'];
+                                        }
+                                        
+                                        // แปลงข้อมูลเป็น JSON สำหรับใช้ใน JavaScript
+                                        $months_json = json_encode($months_data);
+                                        $income_json = json_encode($income_data);
+                                        $expense_json = json_encode($expense_data);
+                                        
+                                    } catch (PDOException $e) {
+                                        echo "เกิดข้อผิดพลาด: " . $e->getMessage();
+                                    }
                                 }
-
                             ?>
                             <div class="md-2">
                                 <h5 class="m-0 font-weight-bold text-primary text-center mb-2">ช่วงเวลาที่กำหนด
                                     <?php
-                                        // echo "start_date".$start_date;
-                                        // echo "end_date".$end_date;
                                         if (empty($start_date) and empty($end_date)) {
                                             echo "ยังไม่กำหนดช่วงเวลา";
-                                        }else {
-                                            echo  thai_date_fullmonth(strtotime($start_date))." ถึง ".thai_date_fullmonth(strtotime($end_date));
+                                        } else {
+                                            echo thai_date_fullmonth(strtotime($start_date))." ถึง ".thai_date_fullmonth(strtotime($end_date));
                                         }
                                     ?>
                                 </h5>
@@ -114,11 +167,10 @@
                                                 สรุปยอดรายรับ-รายจ่ายในแต่ละเดือน</h6>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar"> <canvas id="myBarChart"></canvas> </div>
+                                            <div class="chart-bar"> <canvas id="inExChart"></canvas> </div>
                                         </div>
                                     </div>
                                 </div>
-                                
                             </div>
                         </div>
                     </div>
@@ -159,6 +211,165 @@
 
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>
+
+    <!-- สร้างกราฟ -->
+    <script>
+        <?php if (isset($_POST['submit']) && !empty($months_data)): ?>
+        // กราฟแสดงรายรับ-รายจ่ายรายเดือน
+        var months = <?php echo $months_json; ?>;
+        var incomeData = <?php echo $income_json; ?>;
+        var expenseData = <?php echo $expense_json; ?>;
+        
+        var ctx = document.getElementById('inExChart').getContext('2d');
+        var inExChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'รายรับ',
+                    data: incomeData,
+                    backgroundColor: '#1cc88a', // สีเขียว
+                    borderColor: '#1cc88a',
+                    borderWidth: 1
+                }, {
+                    label: 'รายจ่าย',
+                    data: expenseData,
+                    backgroundColor: '#e74a3b', // สีแดง
+                    borderColor: '#e74a3b',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('th-TH') + ' บาท';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed.y.toLocaleString('th-TH') + ' บาท';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // คำนวณยอดรวมและกำไร/ขาดทุน
+        var totalIncome = incomeData.reduce((a, b) => a + b, 0);
+        var totalExpense = expenseData.reduce((a, b) => a + b, 0);
+        var profit = totalIncome - totalExpense;
+        
+        // เพิ่มการแสดงสรุปยอดรวม
+        var summaryHTML = `
+            <div class="row mt-4">
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        รวมรายรับทั้งหมด</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">${totalIncome.toLocaleString('th-TH')} บาท</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-danger shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                        รวมรายจ่ายทั้งหมด</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">${totalExpense.toLocaleString('th-TH')} บาท</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-${profit >= 0 ? 'info' : 'warning'} shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-${profit >= 0 ? 'info' : 'warning'} text-uppercase mb-1">
+                                        ${profit >= 0 ? 'กำไรสุทธิ' : 'ขาดทุนสุทธิ'}</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">${Math.abs(profit).toLocaleString('th-TH')} บาท</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-${profit >= 0 ? 'plus' : 'minus'}-circle fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.querySelector('.chart-bar').insertAdjacentHTML('afterend', summaryHTML);
+        
+        <?php else: ?>
+        // กรณียังไม่กดปุ่มเรียกดูหรือไม่มีข้อมูล
+        document.addEventListener('DOMContentLoaded', function() {
+            var ctx = document.getElementById('inExChart').getContext('2d');
+            
+            // แสดงข้อความเมื่อยังไม่มีข้อมูล
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'กรุณากำหนดช่วงเวลาและกดปุ่มเรียกดู',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        <?php endif; ?>
+    </script>
 
 </body>
 
