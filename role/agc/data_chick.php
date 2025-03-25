@@ -8,6 +8,17 @@
       header('Location: ../../index.php');
       exit();
   }
+
+  $id = $_SESSION['agc_id'];
+
+  // Query to get lots that are not sold out
+  $query = $db->prepare("
+    SELECT * FROM `data_chick_detail`
+    WHERE `agc_id` = :agc_id AND `dcd_quan` > 0
+  ");
+  $query->bindParam(':agc_id', $id, PDO::PARAM_INT);
+  $query->execute();
+  $chick_details = $query->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -119,28 +130,18 @@
                                             </thead>
                                             <tbody>
                                                 <?php
-                                                    $id = $_SESSION['agc_id'];
-                                                    $check_agc = $db->prepare("SELECT * FROM `data_chick_detail` WHERE `agc_id` = '$id'");
-                                                    $check_agc->execute();
-                                                    $data_chicks = $check_agc->fetchAll();
-
-                                                    // $check_agc_name = $db->prepare("SELECT  `agc_name` FROM `agriculturist` WHERE `agc_id` = '$id'");
-                                                    // $check_agc_name->execute();
-                                                    // $dcd_agc_name = $check_agc_name->fetch(PDO::FETCH_ASSOC);
-                                                    // extract($dcd_agc_name);
-
-                                                    if (!$data_chicks) {
+                                                    if (!$chick_details) {
                                                         echo "<p><td colspan='6' class='text-center'>ไม่พบข้อมูล</td></p>";
                                                     } else {
-                                                        foreach($data_chicks as $data_chick)  {
+                                                        foreach($chick_details as $data_chick)  {
                                                 ?>
                                                 <tr align="center">
-                                                    <td><?= $data_chick['dcd_id'];?></td>
-                                                    <td><?= $data_chick['dcd_date'];?></td>
-                                                    <td><?= $data_chick['dcd_quan'];?></td>
+                                                    <td><?= htmlspecialchars($data_chick['dcd_id']) ?></td>
+                                                    <td><?= htmlspecialchars($data_chick['dcd_date']) ?></td>
+                                                    <td><?= htmlspecialchars($data_chick['dcd_quan']) ?></td>
                                                     <!-- <td><?= $data_chick['dcd_price'];?></td> -->
                                                     <!-- <td><?= $agc_name;?></td> -->
-                                                    <td><a href="edit_datachick.php?edit_id=<?= $data_chick['dcd_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลไก่</a></td>
+                                                    <td><a href="edit_datachick.php?edit_id=<?= htmlspecialchars($data_chick['dcd_id']) ?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลไก่</a></td>
                                                 </tr>
                                                 <?php
                                                         }

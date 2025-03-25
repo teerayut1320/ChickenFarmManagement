@@ -310,36 +310,18 @@
 
         var ctx = document.getElementById("myAreaChart");
         var myAreaChart = new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: data_date_unique,
                 datasets: [{
                     label: "รายรับ",
-                    lineTension: 0.3,
                     backgroundColor: "rgba(78, 115, 223, 0.7)",
                     borderColor: "rgba(78, 115, 223, 1)",
-                    pointRadius: 5,
-                    pointBackgroundColor: "rgba(78, 115, 223, 1)",
-                    pointBorderColor: "rgba(78, 115, 223, 1)",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
-                    pointHoverBorderColor: "rgba(78, 115, 223, 1)",
-                    pointHitRadius: 10,
-                    pointBorderWidth: 2,
                     data: data_income,
                 },{
                     label: "รายจ่าย",
-                    lineTension: 0.3,
                     backgroundColor: "rgba(255,23,0,0.7)",
                     borderColor: "rgba(255,23,0,1)",
-                    pointRadius: 5,
-                    pointBackgroundColor: "rgba(255,23,0,1)",
-                    pointBorderColor: "rgba(255,23,0,1)",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "rgba(178,21,6,1)",
-                    pointHoverBorderColor: "rgba(178,21,6,1)",
-                    pointHitRadius: 10,
-                    pointBorderWidth: 2,
                     data: data_expense,
                 }],
             },
@@ -355,18 +337,17 @@
                 },
                 scales: {
                     xAxes: [{
-                    time: {
-                        unit: 'month'
-                    },
-                    gridLines: {
-                        display: false,
-                        drawBorder: false
-                    },
-                    ticks: {
-                        maxTicksLimit: 10
-                    },
-                        maxBarThickness: 10,
-                    
+                        time: {
+                            unit: 'month'
+                        },
+                        gridLines: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 10
+                        },
+                        maxBarThickness: 25,
                     }],
                     y: {
                         beginAtZero: true
