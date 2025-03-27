@@ -65,23 +65,43 @@
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">รหัสอาหารไก่</label>
-                                                    <input type="text" class="form-control" name="df_id" style="border-radius: 3rem;" value="<?= $df_id ?>" required >
+                                                    <input type="text" class="form-control" name="df_id" style="border-radius: 3rem;" value="<?= $df_id ?>" required readonly>
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่ออาหารไก่</label>
-                                                    <input type="text" class="form-control" name="df_name" style="border-radius: 3rem;" value="<?= $df_name ?>" required >
+                                                    <input type="text" class="form-control" name="df_name" style="border-radius: 3rem;" value="<?= $df_name ?>" required>
                                                 </div>
                                             </div>
+                                            
+                                            <!-- เพิ่มช่องปริมาณอาหาร -->
+                                            <div class="row mb-3">
+                                                <div class="col-md-4 mb-2"></div>
+                                                <div class="col-md-4 mb-2">
+                                                    <label for="" style="font-size: 1.125rem;">ปริมาณอาหาร (กิโลกรัม)</label>
+                                                    <input type="number" class="form-control" name="df_quantity" style="border-radius: 3rem;" 
+                                                           value="<?= isset($df_quantity) ? $df_quantity : 0 ?>" step="0.01" required>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- เพิ่มช่องราคาต่อกิโลกรัม -->
+                                            <div class="row mb-3">
+                                                <div class="col-md-4 mb-2"></div>
+                                                <div class="col-md-4 mb-2">
+                                                    <label for="" style="font-size: 1.125rem;">ราคาต่อกิโลกรัม (บาท)</label>
+                                                    <input type="number" class="form-control" name="df_price_per_kg" style="border-radius: 3rem;" 
+                                                           value="<?= isset($df_price_per_kg) ? $df_price_per_kg : 0 ?>" step="0.01" required>
+                                                </div>
+                                            </div>
+                                            
                                             <div class="row">
                                                 <div class="col-md-5"></div>
                                                 <div class="col-md-3">
                                                     <a href="data_food.php" class="btn btn-danger" style="border-radius: 3rem; font-size: 1rem;">ยกเลิก</a>
                                                     <button type="submit" class="btn btn-chick1" name="submit" style="border-radius: 3rem; font-size: 1rem;">แก้ไขข้อมูล</button>
                                                 </div>
-
                                             </div>
                                         </form>
                                     </div>

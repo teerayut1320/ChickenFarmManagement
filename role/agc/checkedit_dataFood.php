@@ -10,34 +10,45 @@
     if (isset($_POST['submit'])) {
         $df_id = $_POST['df_id'];
         $df_name = $_POST['df_name'];
+        $df_quantity = $_POST['df_quantity'];
+        $df_price_per_kg = $_POST['df_price_per_kg'];
     }
     try {
-        $sql = $db->prepare("UPDATE `data_food` SET `df_name`='$df_name' WHERE `df_id`= '$df_id'");
-        $sql->execute();
-
-
-        if ($sql) {
-            $_SESSION['success'] = "แก้ไขข้อมูลเรียบร้อยแล้ว";
-            echo "<script>
-                $(document).ready(function() {
-                    Swal.fire({
-                        title: 'สำเร็จ',
-                        text: 'แก้ไขข้อมูลเรียบร้อยแล้ว',
-                        icon: 'success',
-                        timer: 5000,
-                        showConfirmButton: false
-                    });
-                })
-            </script>";
-            header("refresh:1; url=data_food.php");
-        } else {
-            $_SESSION['error'] = "แก้ไขข้อมูลเรียบร้อยไม่สำเร็จ";
-            header("location: data_food.php");
+        if (!$df_name) {
+            $_SESSION['error'] = 'กรุณากรอกชื่ออาหาร';
+            header("location: edit_datafood.php?edit_id=$df_id");
+            return;
+        }
+        
+        if (!$df_quantity || $df_quantity < 0) {
+            $_SESSION['error'] = 'กรุณากรอกปริมาณอาหารที่ถูกต้อง';
+            header("location: edit_datafood.php?edit_id=$df_id");
+            return;
+        }
+        
+        if (!$df_price_per_kg || $df_price_per_kg < 0) {
+            $_SESSION['error'] = 'กรุณากรอกราคาต่อกิโลกรัมที่ถูกต้อง';
+            header("location: edit_datafood.php?edit_id=$df_id");
+            return;
         }
 
+        $update_stmt = $db->prepare("UPDATE data_food SET 
+                                     df_name = :df_name,
+                                     df_quantity = :df_quantity,
+                                     df_price_per_kg = :df_price_per_kg
+                                     WHERE df_id = :df_id");
+        $update_stmt->bindParam(':df_name', $df_name);
+        $update_stmt->bindParam(':df_quantity', $df_quantity);
+        $update_stmt->bindParam(':df_price_per_kg', $df_price_per_kg);
+        $update_stmt->bindParam(':df_id', $df_id);
+        $update_stmt->execute();
+
+        $_SESSION['success'] = "แก้ไขข้อมูลสำเร็จ";
+        header("location: data_food.php");
 
     } catch(PDOException $e) {
-        echo $e->getMessage();
+        $_SESSION['error'] = $e->getMessage();
+        header("location: edit_datafood.php?edit_id=$df_id");
     }
 
 ?>

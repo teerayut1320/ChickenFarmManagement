@@ -50,7 +50,10 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="p-5">
-                                        <form class="user" action="checkadd_feeding.php" method="post">
+                                        <!-- แสดงข้อความแจ้งเตือนความผิดพลาด -->
+                                        <div id="errorMessage" class="alert alert-danger" style="display: none;"></div>
+                                        
+                                        <form class="user" action="checkadd_feeding.php" method="post" id="feedingForm">
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
@@ -90,45 +93,59 @@
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-2">
                                                     <label for="" style="font-size: 1.125rem;">ชื่ออาหาร</label>
-                                                    <!-- <input type="text" class="form-control" name="name" style="border-radius: 3rem;" required > -->
-                                                    <select class="form-control" name="name" style="border-radius: 3rem;" required>
+                                                    <select class="form-control" id="food_select" name="name" style="border-radius: 3rem;" required>
                                                         <option selected disabled>กรุณาเลือกอาหาร....</option>
                                                         <?php
                                                             $id = $_SESSION['agc_id'];
-                                                            $check_agc = $db->prepare("SELECT `df_name` FROM `data_food` WHERE `agc_id` = '$id'");
+                                                            $check_agc = $db->prepare("
+                                                                SELECT `df_id`, `df_name`, `df_price_per_kg`, `df_quantity` 
+                                                                FROM `data_food` 
+                                                                WHERE `agc_id` = :id
+                                                            ");
+                                                            $check_agc->bindParam(':id', $id);
                                                             $check_agc->execute();
                                                             $agc_datas = $check_agc->fetchAll();
+                                                            
                                                             foreach($agc_datas as $agc_data) {
+                                                                $food_price = isset($agc_data['df_price_per_kg']) ? $agc_data['df_price_per_kg'] : 0;
+                                                                $food_quantity = isset($agc_data['df_quantity']) ? $agc_data['df_quantity'] : 0;
                                                         ?>
-                                                            <option value="<?=$agc_data['df_name']; ?>"><?=$agc_data['df_name']; ?></option>
+                                                            <option value="<?=$agc_data['df_name']; ?>" 
+                                                                    data-price="<?=$food_price; ?>" 
+                                                                    data-quantity="<?=$food_quantity; ?>">
+                                                                <?=$agc_data['df_name']; ?> (<?=number_format($food_price, 2); ?> บาท/กก., คงเหลือ <?=number_format($food_quantity, 2); ?> กก.)
+                                                            </option>
                                                         <?php 
                                                             }
                                                         ?>
                                                     </select>
                                                 </div>
                                             </div>
-
+                                            
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label for="" style="font-size: 1.125rem;">ปริมาณอาหาร(กิโลกรัม)</label>
-                                                    <input type="number" class="form-control"  name="quan" style="border-radius: 3rem;" required >
+                                                    <label for="" style="font-size: 1.125rem;">ปริมาณอาหาร(กิโลกรัม) <span id="available_quantity" class="text-info"></span></label>
+                                                    <input type="number" class="form-control" id="quantity" name="quan" style="border-radius: 3rem;" step="0.01" required >
                                                 </div> 
                                             </div>
+                                            
+                                            <!-- แสดงราคาที่คำนวณได้ แต่ไม่ให้แก้ไข -->
                                             <div class="row mb-3">
                                                 <div class="col-md-4 mb-2"></div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="" style="font-size: 1.125rem;">จำนวนเงิน(บาท)</label>
-                                                    <input type="number" class="form-control"  name="price" style="border-radius: 3rem;" required >
+                                                    <input type="text" class="form-control" id="price_display" readonly style="border-radius: 3rem; background-color: #f8f9fc;" >
+                                                    <input type="hidden" id="price_input" name="price" >
                                                 </div> 
                                             </div>
+                                            
                                             <div class="row">
                                                 <div class="col-md-5"></div>
                                                 <div class="col-md-3">
                                                     <a href="feeding.php" class="btn btn-danger" style="border-radius: 3rem; font-size: 1rem;">ยกเลิก</a>
-                                                    <button type="submit" class="btn btn-chick1" name="submit" style="border-radius: 3rem; font-size: 1rem;">บันทึกข้อมูล</button>
+                                                    <button type="submit" class="btn btn-chick1" id="submitBtn" name="submit" style="border-radius: 3rem; font-size: 1rem;">บันทึกข้อมูล</button>
                                                 </div>
-
                                             </div>
                                         </form>
                                     </div>
@@ -170,6 +187,84 @@
 
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            var maxQuantity = 0;
+            
+            function updateAvailableQuantity() {
+                var selectedOption = $("#food_select option:selected");
+                maxQuantity = parseFloat(selectedOption.data('quantity')) || 0;
+                
+                if (maxQuantity > 0) {
+                    $("#available_quantity").text("(คงเหลือ " + maxQuantity.toFixed(2) + " กก.)");
+                    $("#quantity").attr("max", maxQuantity);
+                } else {
+                    $("#available_quantity").text("(ไม่มีอาหารคงเหลือ)");
+                    $("#quantity").attr("max", 0);
+                }
+            }
+            
+            function validateQuantity() {
+                var quantity = parseFloat($("#quantity").val()) || 0;
+                
+                if (quantity > maxQuantity) {
+                    $("#errorMessage").text("ไม่สามารถให้อาหารได้ เนื่องจากจำนวนที่ให้เกินกว่าจำนวนที่มีอยู่").show();
+                    $("#submitBtn").prop("disabled", true);
+                    return false;
+                } else if (quantity <= 0) {
+                    $("#errorMessage").text("กรุณาระบุปริมาณอาหารให้ถูกต้อง").show();
+                    $("#submitBtn").prop("disabled", true);
+                    return false;
+                } else {
+                    $("#errorMessage").hide();
+                    $("#submitBtn").prop("disabled", false);
+                    return true;
+                }
+            }
+            
+            function calculatePrice() {
+                var selectedOption = $("#food_select option:selected");
+                var pricePerKg = parseFloat(selectedOption.data('price')) || 0;
+                var quantity = parseFloat($("#quantity").val()) || 0;
+                
+                var totalPrice = pricePerKg * quantity;
+                
+                // แสดงราคาทศนิยม 2 ตำแหน่ง
+                $("#price_display").val(totalPrice.toFixed(2));
+                $("#price_input").val(totalPrice.toFixed(2));
+                
+                // ตรวจสอบปริมาณทุกครั้งที่คำนวณราคา
+                validateQuantity();
+            }
+            
+            // เรียกคำนวณราคาเมื่อมีการเปลี่ยนแปลงอาหารหรือปริมาณ
+            $("#food_select").change(function() {
+                updateAvailableQuantity();
+                calculatePrice();
+                
+                // ถ้าอาหารหมด ให้แสดงข้อความเตือน
+                if (maxQuantity <= 0) {
+                    $("#errorMessage").text("ไม่สามารถให้อาหารได้ เนื่องจากไม่มีอาหารชนิดนี้คงเหลือ").show();
+                    $("#submitBtn").prop("disabled", true);
+                }
+            });
+            
+            $("#quantity").on('input', calculatePrice);
+            
+            // ตรวจสอบฟอร์มก่อนส่ง
+            $("#feedingForm").submit(function(e) {
+                if (!validateQuantity()) {
+                    e.preventDefault();
+                    return false;
+                }
+                return true;
+            });
+            
+            // ซ่อนข้อความแจ้งเตือนเมื่อโหลดหน้า
+            $("#errorMessage").hide();
+        });
+    </script>
 
 </body>
 

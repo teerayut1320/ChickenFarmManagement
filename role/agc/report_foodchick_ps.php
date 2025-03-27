@@ -28,6 +28,15 @@
     <!-- Custom styles for this page -->
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
+    <style>
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .text-right {
+            text-align: right !important;
+        }
+    </style>
+
 </head>
 
 <body id="page-top">
@@ -54,7 +63,7 @@
                 <div class="container-fluid">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h3 class="m-0 font-weight-bold text-center">รายงานข้อมูลการให้อาหาร</h3>
+                            <h3 class="m-0 font-weight-bold text-center">รายงานข้อมูลการให้อาหารไก่</h3>
                         </div>
                         <div class="card-body">
                             <form action="" method="post">
@@ -82,191 +91,282 @@
                                     $end_date = $_POST['end_date'];
                                     $agc_id = $_SESSION['agc_id'];
 
-                                    $sql = $db->prepare("SELECT month(`feed_date`) as month ,`feed_name`, SUM(`feed_quan`) as total
-                                                        FROM `data_feeding`
-                                                        WHERE MONTH(`feed_date`) BETWEEN MONTH('$start_date') AND MONTH('$end_date') AND `agc_id` = '$agc_id'
-                                                        GROUP BY MONTH(`feed_date`) , `feed_name`
-                                                        ORDER BY  MONTH(`feed_date`) ASC");
-                                    $sql->execute();
-
-                                    $data_Sale = array();
-                                    while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
-                                        $data_Sale[] = $row;
-                                    }
-                                    $data_SaleResult = json_encode($data_Sale);
-                                    // echo $data_SaleResult;
-
-
-                                    $sql2 = $db->prepare("SELECT month(`feed_date`) as month ,`feed_name`, SUM(`feed_price`) as total
-                                                        FROM `data_feeding`
-                                                        WHERE MONTH(`feed_date`) BETWEEN MONTH('$start_date') AND MONTH('$end_date') AND `agc_id` = '$agc_id'
-                                                        GROUP BY MONTH(`feed_date`) , `feed_name`
-                                                        ORDER BY  MONTH(`feed_date`) ASC");
-                                    $sql2->execute();
-
-                                    $data_price = array();
-                                    while ($row = $sql2->fetch(PDO::FETCH_ASSOC)) {
-                                        $data_price[] = $row;
-                                    }
-                                    $data_priceResult = json_encode($data_price);
-                                    // echo $data_priceResult;   
-
-                                    // เพิ่ม query สำหรับดึงข้อมูลอาหารตามล็อต
-                                    $sql_food_lot = $db->prepare("
+                                    // Query เพื่อดึงข้อมูลปริมาณอาหารที่ให้ตามเดือน แยกตามชนิดอาหาร
+                                    $sql_food_types = $db->prepare("
                                         SELECT 
-                                            f.feed_date,
-                                            f.feed_name,
-                                            f.feed_quan,
-                                            f.dcd_id,
-                                            MONTH(f.feed_date) as month
-                                        FROM data_feeding f
-                                        WHERE f.feed_date BETWEEN :start_date AND :end_date 
-                                        AND f.agc_id = :agc_id 
-                                        ORDER BY f.feed_date ASC
+                                            MONTH(feed_date) as month, 
+                                            feed_name,
+                                            SUM(feed_quan) as total_quantity,
+                                            SUM(feed_price) as total_price
+                                        FROM data_feeding
+                                        WHERE feed_date BETWEEN :start_date AND :end_date 
+                                        AND agc_id = :agc_id
+                                        GROUP BY MONTH(feed_date), feed_name
+                                        ORDER BY MONTH(feed_date), feed_name
                                     ");
-                                    $sql_food_lot->execute([
+                                    $sql_food_types->execute([
                                         ':start_date' => $start_date,
                                         ':end_date' => $end_date,
                                         ':agc_id' => $agc_id
                                     ]);
 
-                                    $food_lot_data = array();
-                                    while ($row = $sql_food_lot->fetch(PDO::FETCH_ASSOC)) {
-                                        $food_lot_data[] = $row;
+                                    // เตรียมข้อมูลแยกตามเดือนและชนิดอาหาร
+                                    $monthlyData = [];
+                                    $foodTypes = [];
+                                    $totalByMonth = [];
+                                    $totalQuantity = 0;
+                                    $totalPrice = 0;
+                                    
+                                    while ($row = $sql_food_types->fetch(PDO::FETCH_ASSOC)) {
+                                        $month = (int)$row['month'];
+                                        $foodName = $row['feed_name'];
+                                        $quantity = floatval($row['total_quantity']);
+                                        $price = floatval($row['total_price']);
+                                        
+                                        if (!isset($monthlyData[$month])) {
+                                            $monthlyData[$month] = [];
+                                            $totalByMonth[$month] = [
+                                                'quantity' => 0,
+                                                'price' => 0
+                                            ];
+                                        }
+                                        
+                                        $monthlyData[$month][$foodName] = [
+                                            'quantity' => $quantity,
+                                            'price' => $price
+                                        ];
+                                        
+                                        $totalByMonth[$month]['quantity'] += $quantity;
+                                        $totalByMonth[$month]['price'] += $price;
+                                        
+                                        $totalQuantity += $quantity;
+                                        $totalPrice += $price;
+                                        
+                                        if (!in_array($foodName, $foodTypes)) {
+                                            $foodTypes[] = $foodName;
+                                        }
                                     }
-                                    $food_lot_dataResult = json_encode($food_lot_data);
-
-                                     $sql_food_price_lot = $db->prepare("
-                                        SELECT 
-                                            f.feed_date,
-                                            f.feed_name,
-                                            f.feed_price,
-                                            f.dcd_id,
-                                            MONTH(f.feed_date) as month
-                                        FROM data_feeding f
-                                        WHERE f.feed_date BETWEEN :start_date AND :end_date 
-                                        AND f.agc_id = :agc_id 
-                                        ORDER BY f.feed_date ASC
+                                    
+                                    // เรียงชนิดอาหาร
+                                    sort($foodTypes);
+                                    
+                                    // Query เพื่อดึงล็อตทั้งหมดที่มีในช่วงเวลาที่กำหนด
+                                    $sql_lots = $db->prepare("
+                                        SELECT DISTINCT dcd_id 
+                                        FROM data_feeding 
+                                        WHERE feed_date BETWEEN :start_date AND :end_date 
+                                        AND agc_id = :agc_id 
+                                        ORDER BY dcd_id ASC
                                     ");
-                                    $sql_food_price_lot->execute([
+                                    $sql_lots->execute([
                                         ':start_date' => $start_date,
                                         ':end_date' => $end_date,
                                         ':agc_id' => $agc_id
                                     ]);
 
-                                    $food_lot_dataprice = array();
-                                    while ($row = $sql_food_price_lot->fetch(PDO::FETCH_ASSOC)) {
-                                        $food_lot_dataprice[] = $row;
+                                    $allLots = [];
+                                    while ($lot = $sql_lots->fetch(PDO::FETCH_ASSOC)) {
+                                        if (!empty($lot['dcd_id'])) {
+                                            $allLots[] = $lot['dcd_id'];
+                                        }
                                     }
-                                    $food_lot_datapriceResult = json_encode($food_lot_dataprice);
                                 }   
                             ?>
                             <div class="md-2">
                                 <h5 class="m-0 font-weight-bold text-primary text-center mb-2">ช่วงเวลาที่กำหนด
                                     <?php
-                                        // echo "start_date".$start_date;
-                                        // echo "end_date".$end_date;
                                         if (empty($start_date) and empty($end_date)) {
                                             echo "ยังไม่กำหนดช่วงเวลา";
-                                        }else {
-                                            echo  thai_date_fullmonth(strtotime($start_date))." ถึง ".thai_date_fullmonth(strtotime($end_date));
+                                        } else {
+                                            echo thai_date_fullmonth(strtotime($start_date))." ถึง ".thai_date_fullmonth(strtotime($end_date));
                                         }
                                     ?>
                                 </h5>
                             </div>
+                            
+                            <?php if (isset($_POST['submit']) && !empty($monthlyData)): ?>
+                            <!-- ปริมาณอาหารไก่ -->
                             <div class="row">
                                 <div class="col-xl-12 col-lg-12">
                                     <div class="card shadow mb-4">
                                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                                            <h6 class="m-0 font-weight-bold">สรุปยอดปริมาณอาหารไก่ที่ให้ในแต่ละเดือนตามล็อต</h6>
+                                            <h6 class="m-0 font-weight-bold text-primary">ปริมาณอาหารไก่ที่ให้ตามเดือน</h6>
                                             <div class="d-flex align-items-center">
                                                 <label for="foodLotSelect" class="mr-2">เลือกล็อต:</label>
                                                 <select id="foodLotSelect" class="form-control" style="width: 200px; border-radius: 30px;">
                                                     <option value="all">ทั้งหมด</option>
                                                     <?php
-                                                    if (isset($_POST['submit'])) {
-                                                        $sql_lots = $db->prepare("
-                                                            SELECT DISTINCT dcd_id 
-                                                            FROM data_feeding 
-                                                            WHERE feed_date BETWEEN :start_date AND :end_date 
-                                                            AND agc_id = :agc_id 
-                                                            ORDER BY dcd_id ASC
-                                                        ");
-                                                        $sql_lots->execute([
-                                                            ':start_date' => $start_date,
-                                                            ':end_date' => $end_date,
-                                                            ':agc_id' => $agc_id
-                                                        ]);
-                                                        while ($lot = $sql_lots->fetch(PDO::FETCH_ASSOC)) {
-                                                            echo "<option value='{$lot['dcd_id']}'>ล็อต {$lot['dcd_id']}</option>";
-                                                        }
+                                                    foreach ($allLots as $lot) {
+                                                        echo "<option value='{$lot}'>ล็อต {$lot}</option>";
                                                     }
                                                     ?>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar">
-                                                <canvas id="foodLotChart"></canvas>
+                                            <!-- สรุปการใช้อาหารทั้งหมด Card -->
+                                            <div class="row justify-content-center mb-4">
+                                                <div class="col-xl-6 col-md-8">
+                                                    <div class="card border-left-primary shadow h-100 py-2">
+                                                        <div class="card-body">
+                                                            <div class="row no-gutters align-items-center">
+                                                                <div class="col mr-2">
+                                                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                        ปริมาณอาหารที่ให้ทั้งหมด</div>
+                                                                    <div class="h5 mb-0 font-weight-bold text-gray-800"><?= number_format($totalQuantity, 2) ?> กิโลกรัม</div>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <i class="fas fa-drumstick-bite fa-2x text-gray-300"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- ตารางปริมาณอาหารตามเดือน -->
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-hover" id="foodDataTable" width="100%" cellspacing="0">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th rowspan="2" style="vertical-align: middle;">เดือน</th>
+                                                            <?php foreach ($foodTypes as $food): ?>
+                                                                <th colspan="1" class="text-center"><?= $food ?></th>
+                                                            <?php endforeach; ?>
+                                                            <th rowspan="2" style="vertical-align: middle;" class="text-right">รวม (กก.)</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <?php foreach ($foodTypes as $food): ?>
+                                                                <th class="text-right">ปริมาณ (กก.)</th>
+                                                            <?php endforeach; ?>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php 
+                                                        foreach ($monthlyData as $month => $foodData): 
+                                                        ?>
+                                                        <tr>
+                                                            <td><?= $monthTH[$month] ?></td>
+                                                            <?php foreach ($foodTypes as $food): ?>
+                                                                <td class="text-right">
+                                                                    <?= isset($foodData[$food]) ? number_format($foodData[$food]['quantity'], 2) : '-' ?>
+                                                                </td>
+                                                            <?php endforeach; ?>
+                                                            <td class="text-right font-weight-bold">
+                                                                <?= number_format($totalByMonth[$month]['quantity'], 2) ?>
+                                                            </td>
+                                                        </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr class="table-primary font-weight-bold">
+                                                            <td>รวมทั้งหมด</td>
+                                                            <?php 
+                                                            $totalByFood = [];
+                                                            foreach ($foodTypes as $food) {
+                                                                $totalByFood[$food] = 0;
+                                                                foreach ($monthlyData as $month => $foodData) {
+                                                                    if (isset($foodData[$food])) {
+                                                                        $totalByFood[$food] += $foodData[$food]['quantity'];
+                                                                    }
+                                                                }
+                                                                echo '<td class="text-right">' . number_format($totalByFood[$food], 2) . '</td>';
+                                                            }
+                                                            ?>
+                                                            <td class="text-right"><?= number_format($totalQuantity, 2) ?></td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- ค่าใช้จ่ายอาหารไก่ -->
                             <div class="row">
                                 <div class="col-xl-12 col-lg-12">
                                     <div class="card shadow mb-4">
                                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                                            <h6 class="m-0 font-weight-bold">สรุปยอดการจ่ายค่าอาหารไก่ในแต่ละเดือนตามล็อต</h6>
+                                            <h6 class="m-0 font-weight-bold text-danger">ค่าใช้จ่ายอาหารไก่ตามเดือน</h6>
                                             <div class="d-flex align-items-center">
                                                 <label for="foodPriceLotSelect" class="mr-2">เลือกล็อต:</label>
                                                 <select id="foodPriceLotSelect" class="form-control" style="width: 200px; border-radius: 30px;">
                                                     <option value="all">ทั้งหมด</option>
                                                     <?php
-                                                    if (isset($_POST['submit'])) {
-                                                        $sql_lots = $db->prepare("
-                                                            SELECT DISTINCT dcd_id 
-                                                            FROM data_feeding 
-                                                            WHERE feed_date BETWEEN :start_date AND :end_date 
-                                                            AND agc_id = :agc_id 
-                                                            ORDER BY dcd_id ASC
-                                                        ");
-                                                        $sql_lots->execute([
-                                                            ':start_date' => $start_date,
-                                                            ':end_date' => $end_date,
-                                                            ':agc_id' => $agc_id
-                                                        ]);
-                                                        while ($lot = $sql_lots->fetch(PDO::FETCH_ASSOC)) {
-                                                            echo "<option value='{$lot['dcd_id']}'>ล็อต {$lot['dcd_id']}</option>";
-                                                        }
+                                                    foreach ($allLots as $lot) {
+                                                        echo "<option value='{$lot}'>ล็อต {$lot}</option>";
                                                     }
                                                     ?>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar">
-                                                <canvas id="foodPriceLotChart"></canvas>
+                                            <!-- สรุปค่าใช้จ่ายทั้งหมด Card -->
+                                            <div class="row justify-content-center mb-4">
+                                                <div class="col-xl-6 col-md-8">
+                                                    <div class="card border-left-danger shadow h-100 py-2">
+                                                        <div class="card-body">
+                                                            <div class="row no-gutters align-items-center">
+                                                                <div class="col mr-2">
+                                                                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                                                        ค่าใช้จ่ายอาหารไก่ทั้งหมด</div>
+                                                                    <div class="h5 mb-0 font-weight-bold text-gray-800"><?= number_format($totalPrice, 2) ?> บาท</div>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- ตารางค่าใช้จ่ายตามเดือน -->
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-hover" id="foodPriceDataTable" width="100%" cellspacing="0">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>เดือน</th>
+                                                            <th class="text-right">ค่าใช้จ่าย (บาท)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php 
+                                                        foreach ($monthlyData as $month => $foodData): 
+                                                        ?>
+                                                        <tr>
+                                                            <td><?= $monthTH[$month] ?></td>
+                                                            <td class="text-right">
+                                                                <?= number_format($totalByMonth[$month]['price'], 2) ?>
+                                                            </td>
+                                                        </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr class="table-danger font-weight-bold">
+                                                            <td>รวมทั้งหมด</td>
+                                                            <td class="text-right"><?= number_format($totalPrice, 2) ?> บาท</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <?php endif; ?>
                         </div>
                     </div>
-
                 </div>
                 <!-- /.container-fluid -->
-
             </div>
             <!-- End of Main Content -->
 
             <?php include("../../footer/footer.php");?>
             <!-- footer -->
-
         </div>
         <!-- End of Content Wrapper -->
-
     </div>
     <!-- End of Page Wrapper -->
 
@@ -289,197 +389,31 @@
     <script src="vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/demo/datatables-demo.js"></script>
-
     <script>
-        const food_lot_dataResult = <?php echo $food_lot_dataResult ?? '[]'; ?>;
-        let foodLotChart = null;
-
-        function updateFoodChartData(selectedLot) {
-            const filteredData = selectedLot === 'all' 
-                ? food_lot_dataResult 
-                : food_lot_dataResult.filter(item => item.dcd_id === selectedLot);
-
-            const monthlyData = {};
-            const thaiMonths = {
-                1: 'มกราคม', 2: 'กุมภาพันธ์', 3: 'มีนาคม', 4: 'เมษายน',
-                5: 'พฤษภาคม', 6: 'มิถุนายน', 7: 'กรกฎาคม', 8: 'สิงหาคม',
-                9: 'กันยายน', 10: 'ตุลาคม', 11: 'พฤศจิกายน', 12: 'ธันวาคม'
-            };
-
-            const colorPalette = [
-                '#FF6384', '#36A2EB', '#4BC0C0', '#FFCD56', '#9966FF', '#FF9F40',
-                '#32CD32', '#FF69B4', '#4169E1', '#FFB6C1', '#20B2AA', '#BA55D3'
-            ];
-
-            filteredData.forEach(item => {
-                const month = parseInt(item.month);
-                if (!monthlyData[month]) {
-                    monthlyData[month] = 0;
-                }
-                monthlyData[month] += parseFloat(item.feed_quan);
-            });
-
-            const labels = Object.keys(monthlyData).map(month => thaiMonths[month]);
-            const data = Object.values(monthlyData);
-
-            if (foodLotChart) {
-                foodLotChart.destroy();
-            }
-
-            const ctx = document.getElementById("foodLotChart");
-            foodLotChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: selectedLot === 'all' ? "ปริมาณอาหารทั้งหมด" : `ปริมาณอาหารล็อต ${selectedLot}`,
-                        data: data,
-                        backgroundColor: colorPalette,
-                        borderColor: colorPalette,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString() + ' กก.';
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + 
-                                           context.parsed.y.toLocaleString() + ' กก.';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // เพิ่ม Event Listener สำหรับ select
+        const food_lot_dataResult = <?php echo isset($food_lot_dataResult) ? $food_lot_dataResult : '[]'; ?>;
+        const food_lot_datapriceResult = <?php echo isset($food_lot_datapriceResult) ? $food_lot_datapriceResult : '[]'; ?>;
+        
         document.getElementById('foodLotSelect').addEventListener('change', function(e) {
-            updateFoodChartData(e.target.value);
+            const selectedLot = e.target.value;
+            filterTableByLot('foodDataTable', selectedLot);
         });
-
-        // สร้างกราฟครั้งแรกแสดงข้อมูลทั้งหมด
-        document.addEventListener('DOMContentLoaded', function() {
-            updateFoodChartData('all');
-        });
-
-
-        const food_lot_datapriceResult = <?php echo $food_lot_datapriceResult ?? '[]'; ?>;
-
-        let foodPriceLotChart = null;
-
-        function updateFoodPriceChartData(selectedLot) {
-            const filteredData = selectedLot === 'all' 
-                ? food_lot_datapriceResult 
-                : food_lot_datapriceResult.filter(item => item.dcd_id === selectedLot);
-
-            const monthlyData = {};
-            const thaiMonths = {
-                1: 'มกราคม', 2: 'กุมภาพันธ์', 3: 'มีนาคม', 4: 'เมษายน',
-                5: 'พฤษภาคม', 6: 'มิถุนายน', 7: 'กรกฎาคม', 8: 'สิงหาคม',
-                9: 'กันยายน', 10: 'ตุลาคม', 11: 'พฤศจิกายน', 12: 'ธันวาคม'
-            };
-
-            const colorPalette = [
-                '#FF9F40', // ส้มสด
-                '#32CD32', // เขียวสด
-                '#FF69B4', // ชมพูอ่อน
-                '#4169E1', // น้ำเงินรอยัล
-                '#FFB6C1', // ชมพูพาสเทล
-                '#FF6384', // ชมพูเข้ม
-                '#36A2EB', // ฟ้าสด
-                '#4BC0C0', // เขียวมิ้นท์
-                '#FFCD56', // เหลืองทอง
-                '#9966FF', // ม่วงอ่อน
-                '#20B2AA', // เขียวฟ้าอ่อน
-                '#BA55D3'  // ม่วงกลาง
-            ];
-
-            filteredData.forEach(item => {
-                const month = parseInt(item.month);
-                if (!monthlyData[month]) {
-                    monthlyData[month] = 0;
-                }
-                monthlyData[month] += parseFloat(item.feed_price);
-            });
-
-            const labels = Object.keys(monthlyData).map(month => thaiMonths[month]);
-            const data = Object.values(monthlyData);
-
-            if (foodPriceLotChart) {
-                foodPriceLotChart.destroy();
-            }
-
-            const ctx = document.getElementById("foodPriceLotChart");
-            foodPriceLotChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: selectedLot === 'all' ? "ค่าอาหารทั้งหมด" : `ค่าอาหารล็อต ${selectedLot}`,
-                        data: data,
-                        backgroundColor: colorPalette,
-                        borderColor: colorPalette,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString() + ' บาท';
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + 
-                                           context.parsed.y.toLocaleString() + ' บาท';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // เพิ่ม Event Listener สำหรับ select ใหม่
+        
         document.getElementById('foodPriceLotSelect').addEventListener('change', function(e) {
-            updateFoodPriceChartData(e.target.value);
+            const selectedLot = e.target.value;
+            filterTableByLot('foodPriceDataTable', selectedLot);
         });
-
-        // สร้างกราฟราคาครั้งแรกแสดงข้อมูลทั้งหมด
-        document.addEventListener('DOMContentLoaded', function() {
-            updateFoodPriceChartData('all');
-        });
+        
+        function filterTableByLot(tableId, lotId) {
+            // This would be implemented using AJAX to fetch data for the specific lot
+            // For simplicity, we'll just show a message for now
+            if (lotId !== 'all') {
+                alert(`กำลังกรองข้อมูลสำหรับล็อต ${lotId} - ต้องใช้ AJAX เพื่อดึงข้อมูลเฉพาะล็อต`);
+            } else {
+                // Reload the page to show all data
+                location.reload();
+            }
+        }
     </script>
-
 </body>
 
 </html>

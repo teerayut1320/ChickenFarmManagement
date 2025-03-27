@@ -51,7 +51,9 @@
                                     <thead>
                                         <tr align="center">
                                             <th>ชื่ออาหาร</th>
-                                            <th></th>  
+                                            <th>ปริมาณ (กก.)</th>
+                                            <th>ราคา/กก. (บาท)</th>
+                                            <th>จัดการ</th>  
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -68,14 +70,19 @@
                                             $food_datas = $check_df->fetchAll();
 
                                             if (!$food_datas) {
-                                                echo "<p><td colspan='6' class='text-center'>ไม่พบข้อมูล</td></p>";
+                                                echo "<p><td colspan='4' class='text-center'>ไม่พบข้อมูล</td></p>";
                                             } else {
                                                 foreach($food_datas as $food_data)  {
+                                                    // ตรวจสอบว่ามีคอลัมน์หรือไม่ก่อนใช้งาน
+                                                    $quantity = isset($food_data['df_quantity']) ? $food_data['df_quantity'] : 0;
+                                                    $price_per_kg = isset($food_data['df_price_per_kg']) ? $food_data['df_price_per_kg'] : 0;
                                         ?>
-                                        <tr >
-                                            <td><?= $food_data['df_name'];?></td>   
+                                        <tr>
+                                            <td><?= $food_data['df_name'];?></td>
+                                            <td align="right"><?= number_format($quantity, 2);?></td>
+                                            <td align="right"><?= number_format($price_per_kg, 2);?></td>
                                             <td align="center">
-                                                <a href="edit_datafood.php?edit_id=<?= $food_data['df_id'];?>" class="btn btn-warning " style = "border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลอาหารไก่</a>
+                                                <a href="edit_datafood.php?edit_id=<?= $food_data['df_id'];?>" class="btn btn-warning" style="border-radius: 3rem; font-size: .9rem;">แก้ไขข้อมูลอาหารไก่</a>
                                                 <!-- <a href="?delete_id=<?= $food_data['df_id'];?>" class="btn btn-danger " name="delete" style = "border-radius: 3rem; font-size: .9rem;">ลบข้อมูล</a> -->
                                             </td>
                                         </tr>

@@ -1,6 +1,9 @@
 <?php
     session_start(); 
     require_once '../../connect.php';
+    
+    // เพิ่มอาร์เรย์สำหรับชื่อเดือนภาษาไทย
+    $monthTH = [null,'มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,6 +29,19 @@
 
     <!-- Custom styles for this page -->
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+    <style>
+        select option:disabled {
+            color: #999;
+            background-color: #f5f5f5;
+        }
+        
+        .sale-date-alert {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
 
 </head>
 
@@ -72,7 +88,12 @@
                                                         <?php
                                                             $id = $_SESSION['agc_id'];
                                                             $check_lots = $db->prepare("
-                                                                SELECT `dcd_id`, `dcd_date`, `dcd_quan` 
+                                                                SELECT 
+                                                                    `dcd_id`, 
+                                                                    `dcd_date`, 
+                                                                    `dcd_quan`,
+                                                                    DATEDIFF(CURDATE(), `dcd_date`) AS days_raised,
+                                                                    DATE_ADD(`dcd_date`, INTERVAL 60 DAY) AS sale_date
                                                                 FROM `data_chick_detail` 
                                                                 WHERE `agc_id` = :id AND `dcd_quan` > 0 
                                                                 ORDER BY `dcd_id` DESC
@@ -80,15 +101,30 @@
                                                             $check_lots->bindParam(':id', $id);
                                                             $check_lots->execute();
                                                             $chick_lots = $check_lots->fetchAll();
+                                                            
                                                             foreach($chick_lots as $lot) {
+                                                                $days_raised = $lot['days_raised'];
+                                                                $canSell = $days_raised >= 60; // 2 เดือน (60 วัน)
+                                                                
+                                                                // แปลงรูปแบบวันที่เป็นไทย
+                                                                $thai_day = date("d", strtotime($lot['sale_date']));
+                                                                $thai_month = $monthTH[date("n", strtotime($lot['sale_date']))];
+                                                                $thai_year = date("Y", strtotime($lot['sale_date'])) + 543;
+                                                                $thai_date = $thai_day . " " . $thai_month . " " . $thai_year;
                                                         ?>
-                                                            <option value="<?= $lot['dcd_id']; ?>">
-                                                                รหัสล็อต <?= $lot['dcd_id']; ?> (<?= $lot['dcd_quan']; ?> ตัว)
+                                                            <option value="<?= $lot['dcd_id']; ?>" <?= $canSell ? "" : "disabled"; ?>>
+                                                                รหัสล็อต <?= $lot['dcd_id']; ?> (<?= $lot['dcd_quan']; ?> ตัว) 
+                                                                <?php if (!$canSell): ?>
+                                                                    - ขายได้วันที่ <?= $thai_day; ?> <?= $thai_month; ?> <?= $thai_year; ?>
+                                                                <?php endif; ?>
                                                             </option>
                                                         <?php 
                                                             }
                                                         ?>
                                                     </select>
+                                                    <?php if (count($chick_lots) === 0): ?>
+                                                        <div class="alert alert-warning mt-2">ไม่พบล็อตไก่ที่มีจำนวนเหลืออยู่</div>
+                                                    <?php endif; ?>
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
@@ -161,6 +197,25 @@
 
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const lotSelect = document.querySelector('select[name="chick_lot"]');
+            const submitButton = document.querySelector('button[name="submit"]');
+            
+            lotSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                
+                if (selectedOption.disabled) {
+                    // ถ้าเลือกล็อตที่ยังขายไม่ได้
+                    alert('ล็อตนี้ยังไม่สามารถขายได้ ' + selectedOption.text);
+                    submitButton.disabled = true;
+                } else {
+                    submitButton.disabled = false;
+                }
+            });
+        });
+    </script>
 
 </body>
 

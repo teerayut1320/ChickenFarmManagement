@@ -54,7 +54,7 @@
                 <div class="container-fluid">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h3 class="m-0 font-weight-bold text-center">รายงานข้อมูลไก่</h3>
+                            <h3 class="m-0 font-weight-bold text-center">รายงานข้อมูลการรับไก่ตามล็อต</h3>
                         </div>
                         <div class="card-body">
                             <form action="" method="post">
@@ -151,7 +151,7 @@
                                 <div class="col-xl-12 col-lg-12">
                                     <div class="card shadow mb-4">
                                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                                            <h6 class="m-0 font-weight-bold">สรุปยอดปริมาณไก่ตามล็อต</h6>
+                                            <h6 class="m-0 font-weight-bold text-primary">จำนวนไก่ที่รับเข้าตามล็อต</h6>
                                             <div class="d-flex align-items-center">
                                                 <label for="lotSelect" class="mr-2">เลือกล็อต:</label>
                                                 <select id="lotSelect" class="form-control" style="width: 200px; border-radius: 30px;">
@@ -179,8 +179,45 @@
                                             </div>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar">
-                                                <canvas id="chickLotChart"></canvas>
+                                            <!-- สรุปจำนวนไก่ทั้งหมด Card -->
+                                            <div class="row justify-content-center mb-4">
+                                                <div class="col-xl-6 col-md-8">
+                                                    <div class="card border-left-primary shadow h-100 py-2">
+                                                        <div class="card-body">
+                                                            <div class="row no-gutters align-items-center">
+                                                                <div class="col mr-2">
+                                                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                                        จำนวนไก่ที่รับเข้าทั้งหมด</div>
+                                                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalChickenDisplay">0 ตัว</div>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <i class="fas fa-feather fa-2x text-gray-300"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- ตารางข้อมูลจำนวนไก่ -->
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-hover" id="chickDataTable" width="100%" cellspacing="0">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>เดือน</th>
+                                                            <th class="text-right">จำนวนไก่ที่รับเข้า (ตัว)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <!-- จะถูกเติมด้วย JavaScript -->
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr class="table-primary font-weight-bold">
+                                                            <td>รวมทั้งหมด</td>
+                                                            <td class="text-right" id="totalChickenTable">0 ตัว</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
@@ -190,7 +227,7 @@
                                 <div class="col-xl-12 col-lg-12">
                                     <div class="card shadow mb-4">
                                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                                            <h6 class="m-0 font-weight-bold">สรุปยอดการจ่ายค่าไก่ที่รับเข้าตามล็อต</h6>
+                                            <h6 class="m-0 font-weight-bold text-danger">ค่าใช้จ่ายในการซื้อไก่ตามล็อต</h6>
                                             <div class="d-flex align-items-center">
                                                 <label for="lotSelectPrice" class="mr-2">เลือกล็อต:</label>
                                                 <select id="lotSelectPrice" class="form-control" style="width: 200px; border-radius: 30px;">
@@ -218,8 +255,45 @@
                                             </div>
                                         </div>
                                         <div class="card-body">
-                                            <div class="chart-bar">
-                                                <canvas id="chickPriceChart"></canvas>
+                                            <!-- ค่าใช้จ่ายทั้งหมด Card -->
+                                            <div class="row justify-content-center mb-4">
+                                                <div class="col-xl-6 col-md-8">
+                                                    <div class="card border-left-danger shadow h-100 py-2">
+                                                        <div class="card-body">
+                                                            <div class="row no-gutters align-items-center">
+                                                                <div class="col mr-2">
+                                                                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                                                        ค่าใช้จ่ายในการซื้อไก่ทั้งหมด</div>
+                                                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalPriceDisplay">0 บาท</div>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- ตารางข้อมูลค่าใช้จ่าย -->
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-hover" id="priceDataTable" width="100%" cellspacing="0">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>เดือน</th>
+                                                            <th class="text-right">ค่าใช้จ่ายในการซื้อไก่ (บาท)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <!-- จะถูกเติมด้วย JavaScript -->
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr class="table-danger font-weight-bold">
+                                                            <td>รวมทั้งหมด</td>
+                                                            <td class="text-right" id="totalPriceTable">0 บาท</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
@@ -267,10 +341,9 @@
     <script src="js/demo/datatables-demo.js"></script>
 
     <script>
-
-        // เพิ่มตัวแปรสำหรับกราฟใหม่
+        // เพิ่มตัวแปรสำหรับข้อมูล
         const lot_dataResult = <?php echo $lot_dataResult ?? '[]'; ?>;
-        let chickLotChart = null;
+        const lot_dataPriceResult = <?php echo $lot_dataPriceResult ?? '[]'; ?>;
 
         function updateChartData(selectedLot) {
             const filteredData = selectedLot === 'all' 
@@ -292,83 +365,33 @@
                 monthlyData[month] += parseFloat(item.dcd_quan);
             });
 
-            const labels = Object.keys(monthlyData).map(month => thaiMonths[month]);
-            const data = Object.values(monthlyData);
-
-            if (chickLotChart) {
-                chickLotChart.destroy();
-            }
-
-            const colorPalette = [
-                '#FF6B6B', // แดงสด
-                '#4ECDC4', // เขียวมิ้นท์
-                '#45B7D1', // ฟ้าอ่อน
-                '#96CEB4', // เขียวพาสเทล
-                '#FFEEAD', // เหลืองอ่อน
-                '#D4A5A5', // ชมพูอมน้ำตาล
-                '#9B5DE5', // ม่วง
-                '#F15BB5', // ชมพูเข้ม
-                '#00BBF9', // ฟ้าสด
-                '#00F5D4', // เขียวเทอร์ควอยซ์
-                '#FEE440', // เหลืองสด
-                '#FF85A1'  // ชมพูอ่อน
-            ];
-
-            const ctx = document.getElementById("chickLotChart");
-            chickLotChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: selectedLot === 'all' ? "จำนวนไก่ทั้งหมด" : `จำนวนไก่ล็อต ${selectedLot}`,
-                        data: data,
-                        backgroundColor: colorPalette,
-                        borderColor: colorPalette,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString() + ' ตัว';
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + 
-                                           context.parsed.y.toLocaleString() + ' ตัว';
-                                }
-                            }
-                        }
-                    }
-                }
+            // เตรียมข้อมูลสำหรับตาราง
+            const sortedMonths = Object.keys(monthlyData).map(Number).sort((a, b) => a - b);
+            
+            // คำนวณยอดรวม
+            const totalChicken = Object.values(monthlyData).reduce((sum, val) => sum + val, 0);
+            
+            // อัพเดทการ์ดสรุป
+            document.getElementById('totalChickenDisplay').textContent = totalChicken.toLocaleString() + ' ตัว';
+            
+            // อัพเดทตาราง
+            const tableBody = document.querySelector('#chickDataTable tbody');
+            tableBody.innerHTML = '';
+            
+            sortedMonths.forEach(month => {
+                const quantity = monthlyData[month];
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${thaiMonths[month]}</td>
+                    <td class="text-right">${quantity.toLocaleString()} ตัว</td>
+                `;
+                tableBody.appendChild(row);
             });
+            
+            document.getElementById('totalChickenTable').textContent = totalChicken.toLocaleString() + ' ตัว';
         }
 
-        // เพิ่ม Event Listener สำหรับ select
-        document.getElementById('lotSelect').addEventListener('change', function(e) {
-            updateChartData(e.target.value);
-        });
-
-        // สร้างกราฟครั้งแรกแสดงข้อมูลทั้งหมด
-        updateChartData('all');
-
-        // เพิ่มตัวแปรสำหรับกราฟใหม่
-        const lot_dataPriceResult = <?php echo $lot_dataPriceResult ?? '[]'; ?>;
-        let chickPriceChart = null;
-
-        // เพิ่มฟังก์ชันสำหรับอัพเดทกราฟราคา
         function updatePriceChartData(selectedLot) {
             const filteredData = selectedLot === 'all' 
                 ? lot_dataPriceResult 
@@ -381,21 +404,6 @@
                 9: 'กันยายน', 10: 'ตุลาคม', 11: 'พฤศจิกายน', 12: 'ธันวาคม'
             };
 
-            const colorPalette = [
-                '#FF9F40', // ส้มสด
-                '#32CD32', // เขียวสด
-                '#FF69B4', // ชมพูอ่อน
-                '#4169E1', // น้ำเงินรอยัล
-                '#FFB6C1',
-                '#FF6384', // ชมพูเข้ม
-                '#36A2EB', // ฟ้าสด
-                '#4BC0C0', // เขียวมิ้นท์
-                '#FFCD56', // เหลืองทอง
-                '#9966FF', // ม่วงอ่อน // ชมพูพาสเทล
-                '#20B2AA', // เขียวฟ้าอ่อน
-                '#BA55D3'  // ม่วงกลาง
-];
-
             filteredData.forEach(item => {
                 const month = parseInt(item.month);
                 if (!monthlyData[month]) {
@@ -404,63 +412,48 @@
                 monthlyData[month] += parseFloat(item.dcd_price);
             });
 
-            const labels = Object.keys(monthlyData).map(month => thaiMonths[month]);
-            const data = Object.values(monthlyData);
-
-            if (chickPriceChart) {
-                chickPriceChart.destroy();
-            }
-
-            const ctx = document.getElementById("chickPriceChart");
-            chickPriceChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: selectedLot === 'all' ? "ค่าใช้จ่ายทั้งหมด" : `ค่าใช้จ่ายล็อต ${selectedLot}`,
-                        data: data,
-                        backgroundColor: colorPalette,
-                        borderColor: colorPalette,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString() + ' บาท';
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + 
-                                           context.parsed.y.toLocaleString() + ' บาท';
-                                }
-                            }
-                        }
-                    }
-                }
+            // เตรียมข้อมูลสำหรับตาราง
+            const sortedMonths = Object.keys(monthlyData).map(Number).sort((a, b) => a - b);
+            
+            // คำนวณยอดรวม
+            const totalPrice = Object.values(monthlyData).reduce((sum, val) => sum + val, 0);
+            
+            // อัพเดทการ์ดสรุป
+            document.getElementById('totalPriceDisplay').textContent = totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' บาท';
+            
+            // อัพเดทตาราง
+            const tableBody = document.querySelector('#priceDataTable tbody');
+            tableBody.innerHTML = '';
+            
+            sortedMonths.forEach(month => {
+                const price = monthlyData[month];
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${thaiMonths[month]}</td>
+                    <td class="text-right">${price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} บาท</td>
+                `;
+                tableBody.appendChild(row);
             });
+            
+            document.getElementById('totalPriceTable').textContent = totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' บาท';
         }
 
-        // เพิ่ม Event Listener สำหรับ select ใหม่
+        // เพิ่ม Event Listener สำหรับ select
+        document.getElementById('lotSelect').addEventListener('change', function(e) {
+            updateChartData(e.target.value);
+        });
+
         document.getElementById('lotSelectPrice').addEventListener('change', function(e) {
             updatePriceChartData(e.target.value);
         });
 
-        // สร้างกราฟราคาครั้งแรกแสดงข้อมูลทั้งหมด
+        // สร้างตารางครั้งแรก
         document.addEventListener('DOMContentLoaded', function() {
-            updatePriceChartData('all');
+            if (lot_dataResult.length > 0) {
+                updateChartData('all');
+                updatePriceChartData('all');
+            }
         });
     </script>
 

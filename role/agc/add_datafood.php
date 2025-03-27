@@ -58,13 +58,26 @@
                                                     <input type="text" class="form-control" name="foodname" style="border-radius: 3rem;" required >
                                                 </div>
                                             </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-4 mb-2"></div>
+                                                <div class="col-md-4 mb-2">
+                                                    <label for="" style="font-size: 1.125rem;">ปริมาณอาหาร (กิโลกรัม)</label>
+                                                    <input type="number" class="form-control" name="quantity" step="0.01" style="border-radius: 3rem;" required >
+                                                </div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-4 mb-2"></div>
+                                                <div class="col-md-4 mb-2">
+                                                    <label for="" style="font-size: 1.125rem;">ราคาต่อกิโลกรัม (บาท)</label>
+                                                    <input type="number" class="form-control" name="price_per_kg" step="0.01" style="border-radius: 3rem;" required >
+                                                </div>
+                                            </div>
                                             <div class="row">
                                                 <div class="col-md-5"></div>
                                                 <div class="col-md-3">
                                                     <a href="data_food.php" class="btn btn-danger" style="border-radius: 3rem; font-size: 1rem;">ยกเลิก</a>
                                                     <button type="submit" class="btn btn-chick1" name="submit" style="border-radius: 3rem; font-size: 1rem;">บันทึกข้อมูล</button>
                                                 </div>
-
                                             </div>
                                         </form>
                                     </div>
@@ -72,16 +85,13 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <!-- /.container-fluid -->
-
             </div>
             <!-- End of Main Content -->
             <?php include("../../footer/footer.php");?> <!-- footer -->
         </div>
         <!-- End of Content Wrapper -->
-
     </div>
     <!-- End of Page Wrapper -->
 
